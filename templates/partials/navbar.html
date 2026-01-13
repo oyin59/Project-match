@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-lg pm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">ProjectMatch</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+
+        {% if role == "student" %}
+          <li class="nav-item"><a class="nav-link {% if request.path|slice:':9' == '/student/' %}active{% endif %}" href="{% url 'student_dashboard' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/student/profile/' %}{% endif %}" href="{% url 'student_profile' %}">Profile</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/student/projects/' %}{% endif %}" href="{% url 'student_projects' %}">Projects</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/student/preferences/' %}{% endif %}" href="{% url 'student_preferences' %}">Preferences</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Allocation</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Logout</a></li>
+
+        {% elif role == "supervisor" %}
+          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/' %}active{% endif %}" href="{% url 'supervisor_dashboard' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/projects' %}{% endif %}" href="{% url 'supervisor_projects' %}">Projects</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/add_projects' %}{% endif %}" href="{% url 'supervisor_add_project' %}">Add Projects</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/interested_students' %}{% endif %}" href="{% url 'supervisor_interested_students' %}">Interested Students</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Logout</a></li>
+
+        {% elif role == "admin" %}
+          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_dashboard/' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Home</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_students/' %}{% endif %}" href="{% url 'admin_students' %}">Students</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_projects/' %}{% endif %}" href="{% url 'admin_projects' %}">Projects</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_supervisors/' %}{% endif %}" href="{% url 'admin_supervisors' %}">Supervisors</a></li>
+          <li class="nav-item"><a class="nav-link{% if request.path == '/admin_allocations/' %}{% endif %}" href="{% url 'admin_allocations' %}">Allocations</a></li>
+          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Logout</a></li>
+
+        {% else %}
+          <!-- guest / fallback -->
+          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Home</a></li>
+        {% endif %}
+
+      </ul>
+    </div>
+  </div>
+</nav>

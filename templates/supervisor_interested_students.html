@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}Interested Students | ProjectMatch{% endblock %}
+
+{% block content %}
+
+<div class="py-4">
+
+  <!-- Back link -->
+  <a href="{% url 'supervisor_dashboard' %}" class="btn btn-ghost mb-3">
+    ← Back to dashboard
+  </a>
+
+  <!-- Page title -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="mb-1 pm-title">Interested students</h2>
+      <p class="mb-0 text-secondary small">
+        View and compare students who have selected your projects.
+      </p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card pm mb-4 p-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label for="projectSelect" class="form-label">Select project</label>
+        <select id="projectSelect" class="form-select">
+          <option>AI Chatbot for Customer Service</option>
+          <option>Data Visualization Dashboard</option>
+          <option>Online Learning Management System</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="sortRanking" class="form-label">Sort by</label>
+        <select id="sortRanking" class="form-select">
+          <option>Overall score (highest first)</option>
+          <option>Ranking (1st choice first)</option>
+          <option>Prerequisites met</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label d-block">View</label>
+        <span class="pm-pill small">Quota: 2 students · 5 interested</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interested students table -->
+  <div class="card pm mb-4 p-4">
+    <h5 class="card-title pm-title mb-3">
+      Students interested in: AI Chatbot for Customer Service
+    </h5>
+
+    <table class="table align-middle mb-3">
+      <thead>
+        <tr>
+          <th scope="col">Student</th>
+          <th scope="col">Ranking</th>
+          <th scope="col">Prereqs met</th>
+          <th scope="col">Score</th>
+          <th scope="col" class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>John Smith</td>
+          <td>1st choice</td>
+          <td>2 / 3</td>
+          <td>85</td>
+          <td class="text-end">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#studentProfileModal">
+              View
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>Jane Doe</td>
+          <td>1st choice</td>
+          <td>3 / 3</td>
+          <td>95</td>
+          <td class="text-end">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#studentProfileModal">
+              View
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>Mike Ross</td>
+          <td>2nd choice</td>
+          <td>2 / 3</td>
+          <td>70</td>
+          <td class="text-end">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#studentProfileModal">
+              View
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>Sarah Lee</td>
+          <td>3rd choice</td>
+          <td>1 / 3</td>
+          <td>50</td>
+          <td class="text-end">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#studentProfileModal">
+              View
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td>Tom Brown</td>
+          <td>1st choice</td>
+          <td>2 / 3</td>
+          <td>80</td>
+          <td class="text-end">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#studentProfileModal">
+              View
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="small text-secondary mb-0">
+      <strong>Total interested:</strong> 5 students ·
+      <strong>Project quota:</strong> 2 students ·
+      <strong>Currently allocated:</strong> 2 students (John Smith, Jane Doe)
+      <span class="d-block mt-1 fst-italic">
+        Note: Final allocation is handled by the admin.
+      </span>
+    </p>
+  </div>
+
+</div>
+
+<!-- Student Profile Modal -->
+<div class="modal fade" id="studentProfileModal" tabindex="-1"
+     aria-labelledby="studentProfileLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content card pm-glass">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="studentProfileLabel">Student profile – John Smith</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body pt-0">
+
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="pm-title mb-2">Basic details</h6>
+            <p class="mb-1"><strong>Student ID:</strong> 12345</p>
+            <p class="mb-1"><strong>Email:</strong> john.smith@student.ac.uk</p>
+            <p class="mb-1"><strong>Programme:</strong> BSc Computer Science</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="pm-title mb-2">Project preferences</h6>
+            <p class="mb-1"><strong>1st choice:</strong> AI Chatbot (your project) ✓</p>
+            <p class="mb-1"><strong>2nd choice:</strong> Machine Learning Dashboard</p>
+            <p class="mb-1"><strong>3rd choice:</strong> Data Mining Tool</p>
+          </div>
+        </div>
+
+        <div class="pm-divider"></div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="pm-title mb-2">Completed modules</h6>
+            <ul class="mb-3">
+              <li>Database Systems</li>
+              <li>Web Development</li>
+              <li>Artificial Intelligence</li>
+              <li>Software Engineering</li>
+            </ul>
+
+            <h6 class="pm-title mb-2">Skills</h6>
+            <ul class="mb-0">
+              <li>Python, Java, JavaScript</li>
+              <li>React, Django</li>
+              <li>Machine learning basics</li>
+            </ul>
+          </div>
+
+          <div class="col-md-6">
+            <h6 class="pm-title mb-2">Interests</h6>
+            <p class="mb-3">
+              "I’m interested in AI and want to work on chatbot development for my career..."
+            </p>
+
+            <h6 class="pm-title mb-2">Match for this project</h6>
+            <ul class="mb-2">
+              <li>✓ Artificial Intelligence (must-have)</li>
+              <li>✓ Python (nice-to-have)</li>
+              <li>✗ Natural Language Processing (nice-to-have)</li>
+            </ul>
+            <p class="fw-semibold mb-0">
+              Match score:
+              <span style="color: var(--pm-purple);">85 / 100</span>
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

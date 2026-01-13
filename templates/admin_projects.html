@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Projects | ProjectMatch{% endblock %}
+
+{% block content %}
+
+<div class="py-4">
+  <h4 class="fw-semibold mb-4 text-center pm-title">Projects</h4>
+
+  <!-- Search + Filters -->
+  <div class="d-flex justify-content-center mb-4">
+    <div class="d-flex gap-3 flex-wrap justify-content-center align-items-center"
+         style="max-width: 950px; width: 100%;">
+
+      <!-- Search -->
+      <div class="flex-grow-1" style="max-width: 380px;">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search projects...">
+        </div>
+      </div>
+
+      <!-- Filter: Supervisor -->
+      <div>
+        <select class="form-select form-select-sm" style="width: 180px;">
+          <option selected>All supervisors</option>
+          <option>Dr. Sarah Smith</option>
+          <option>Prof. James Jones</option>
+          <option>Dr. Anita Patel</option>
+          <option>Dr. Michael Carter</option>
+        </select>
+      </div>
+
+      <!-- Filter: Status -->
+      <div>
+        <select class="form-select form-select-sm" style="width: 160px;">
+          <option selected>All status</option>
+          <option>Fully filled</option>
+          <option>Partially filled</option>
+          <option>Spaces available</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Projects table -->
+  <div class="card pm p-3">
+    <table class="table  align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Project</th>
+          <th scope="col">Supervisor</th>
+          <th scope="col">Quota</th>
+          <th scope="col">Interested</th>
+          <th scope="col">Allocated</th>
+          <th scope="col">Status</th>
+          <th scope="col" class="text-end"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AI Chatbot for Customer Service</td>
+          <td>Dr. Sarah Smith</td>
+          <td>2</td>
+          <td>5</td>
+          <td>2</td>
+          <td>Fully filled</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Data Visualization Dashboard</td>
+          <td>Prof. James Jones</td>
+          <td>3</td>
+          <td>3</td>
+          <td>1</td>
+          <td>Spaces available</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Online Learning Management System</td>
+          <td>Dr. Sarah Smith</td>
+          <td>3</td>
+          <td>7</td>
+          <td>2</td>
+          <td>Partially filled</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Machine Learning Dashboard</td>
+          <td>Dr. Anita Patel</td>
+          <td>2</td>
+          <td>4</td>
+          <td>1</td>
+          <td>Spaces available</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Data Mining &amp; Analytics Tool</td>
+          <td>Dr. Michael Carter</td>
+          <td>2</td>
+          <td>3</td>
+          <td>2</td>
+          <td>Fully filled</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Smart Campus Mobile App</td>
+          <td>Prof. James Jones</td>
+          <td>2</td>
+          <td>2</td>
+          <td>1</td>
+          <td>Spaces available</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>IoT Sensor Network Monitoring</td>
+          <td>Dr. Anita Patel</td>
+          <td>1</td>
+          <td>3</td>
+          <td>1</td>
+          <td>Fully filled</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Recommender System for Study Resources</td>
+          <td>Dr. Michael Carter</td>
+          <td>2</td>
+          <td>2</td>
+          <td>0</td>
+          <td>Spaces available</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="small text-secondary mt-3 mb-0 text-center">
+      Total: 8 projects · Fully filled: 3 · Spaces left: 8
+    </p>
+  </div>
+</div>
+
+{% endblock %}

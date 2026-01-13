@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profile | Student{% endblock %}
+
+{% block content %}
+
+<!-- Page Header (Aston purple hero) -->
+<section class="pm-hero">
+  <div class="pm-step-label">Student Profile</div>
+  <div class="pm-hero-title">Your Information</div>
+  <p class="pm-hero-subtitle mb-0">
+    Keep your profile up to date to help the system match you with suitable projects.
+  </p>
+</section>
+
+<form class="row g-4">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-lg-6">
+
+    <!-- Personal Info Card -->
+    <div class="card pm p-4 mb-4">
+      <h5 class="card-title mb-3">Personal Information</h5>
+
+      <label class="form-label">Name</label>
+      <input type="text" class="form-control mb-3" placeholder="e.g. Jane Doe">
+
+      <label class="form-label">Student ID</label>
+      <input type="text" class="form-control mb-3" placeholder="e.g. 123456">
+
+      <label class="form-label">Email</label>
+      <input type="email" class="form-control mb-3" placeholder="you@example.com">
+
+      <label class="form-label">Course</label>
+      <input type="text" class="form-control mb-1" placeholder="e.g. BSc Computer Science">
+      <small class="text-muted">Use your official course title.</small>
+    </div>
+
+    <!-- Academic Background -->
+    <div class="card pm p-4 mb-4">
+      <h5 class="card-title mb-3">Academic Background</h5>
+
+      <label class="form-label">Summary</label>
+      <textarea rows="6" class="form-control mb-2"
+        placeholder="Briefly describe your academic experience, key modules, grades, or areas you enjoyed."></textarea>
+
+      <button type="button" class="btn btn-outline btn-sm">
+        + Add Modules
+      </button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-lg-6">
+
+    <!-- Skills -->
+    <div class="card pm p-4 mb-4">
+      <h5 class="card-title mb-3">Skills</h5>
+
+      <label class="form-label">Technical & Soft Skills</label>
+      <textarea rows="6" class="form-control mb-2"
+        placeholder="e.g. Python, Web Development, Data Analysis, Teamwork, Communication"></textarea>
+
+      <button type="button" class="btn btn-outline btn-sm">
+        + Add Skills
+      </button>
+    </div>
+
+    <!-- Research Interests -->
+    <div class="card pm p-4 mb-4">
+      <h5 class="card-title mb-3">Research Interests</h5>
+
+      <input type="text" class="form-control mb-2" placeholder="e.g. Artificial Intelligence">
+      <input type="text" class="form-control mb-2" placeholder="e.g. Human–Computer Interaction">
+      <input type="text" class="form-control mb-3" placeholder="e.g. Data Visualisation">
+
+      <button type="button" class="btn btn-outline btn-sm">
+        + Add Interest
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="col-12 text-center">
+    <button type="submit" class="btn btn-gradient px-4 py-2 me-3">Save Profile</button>
+    <button type="button" class="btn btn-ghost px-4 py-2">Cancel</button>
+  </div>
+
+</form>
+
+{% endblock %}

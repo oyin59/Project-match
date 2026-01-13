@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Projects{% endblock %}
+
+{% block content %}
+
+<div class="py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold pm-title">My Projects</h2>
+    <a href="{% url 'supervisor_add_project' %}" class="btn btn-gradient px-4">
+      + Add New Project
+    </a>
+  </div>
+
+  <!-- Project Card 1 -->
+  <div class="card pm mb-4">
+    <div class="card-body">
+
+      <!-- Title -->
+      <h5 class="card-title mb-2">AI Chatbot for Customer Service</h5>
+      <div class="pm-divider"></div>
+
+      <!-- Project status & stats -->
+      <p class="text-secondary small mb-1">
+        Status:
+        <span class="fw-semibold" style="color: var(--pm-purple);">
+          ✔ Fully allocated
+        </span>
+      </p>
+
+      <p class="text-secondary small mb-1">
+        Quota:
+        <span class="fw-semibold">2 students</span>
+      </p>
+
+      <p class="text-secondary small mb-1">
+        Students allocated:
+        <span class="pm-pill small">2 / 2</span>
+      </p>
+
+      <p class="text-secondary small mb-3">
+        Students interested: 5
+      </p>
+
+      <!-- Allocated Students -->
+      <p class="fw-semibold small mb-1">Allocated students</p>
+      <ul class="text-secondary small mb-3">
+        <li>John Smith (Met 2/3 prerequisites – 1st choice)</li>
+        <li>Jane Doe (Met 3/3 prerequisites – 1st choice)</li>
+      </ul>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-end gap-2">
+        <a href="#" class="btn btn-ghost btn-sm">Edit project</a>
+        <a href="#" class="btn btn-outline btn-sm">Delete</a>
+        <a href="#" class="btn btn-gradient btn-sm">View all students</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Project Card 2 -->
+  <div class="card pm mb-4">
+    <div class="card-body">
+
+      <!-- Title -->
+      <h5 class="card-title mb-2">Online Learning Management System</h5>
+      <div class="pm-divider"></div>
+
+      <!-- Stats -->
+      <p class="text-secondary small mb-1">
+        Status:
+        <span class="fw-semibold" style="color: var(--pm-accent-gold);">
+          ⧗ Partially filled
+        </span>
+      </p>
+
+      <p class="text-secondary small mb-1">
+        Quota:
+        <span class="fw-semibold">3 students</span>
+      </p>
+
+      <p class="text-secondary small mb-1">
+        Students allocated:
+        <span class="pm-pill small">2 / 3</span>
+      </p>
+
+      <p class="text-secondary small mb-3">
+        Students interested: 7
+      </p>
+
+      <!-- Allocated Students -->
+      <p class="fw-semibold small mb-1">Allocated students</p>
+      <ul class="text-secondary small mb-3">
+        <li>Mike Johnson (Met 3/3 prerequisites – 2nd choice)</li>
+        <li>Sarah Lee (Met 2/3 prerequisites – 1st choice)</li>
+      </ul>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-end gap-2">
+        <a href="#" class="btn btn-ghost btn-sm">Edit project</a>
+        <a href="#" class="btn btn-outline btn-sm">Delete</a>
+        <a href="#" class="btn btn-gradient btn-sm">View all students</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Load more -->
+  <div class="text-center mt-3">
+    <button class="btn btn-outline px-4">More projects</button>
+  </div>
+
+</div>
+
+{% endblock %}

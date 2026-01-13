@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Manual Allocation | ProjectMatch{% endblock %}
+
+{% block content %}
+
+<div class="py-4">
+  <h4 class="fw-semibold mb-2 text-center pm-title">Manual allocation</h4>
+
+  <!-- Back button -->
+  <a href="{% url 'admin_allocations' %}" class="btn btn-ghost btn-sm mb-4">
+    ← Back to allocation overview
+  </a>
+
+  <!-- STUDENT SEARCH + FILTER -->
+  <div class="card pm p-3 mb-4">
+    <h5 class="fw-semibold mb-3 pm-title">Students</h5>
+
+    <div class="d-flex flex-wrap gap-4 mb-3 justify-content-between">
+      <!-- Search -->
+      <div style="min-width:260px; max-width:340px; flex-grow:1;">
+        <label class="form-label small text-secondary mb-1">Search students</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search students…">
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div style="min-width:170px;">
+        <label class="form-label small text-secondary mb-1">Filter</label>
+        <select class="form-select form-select-sm">
+          <option selected>All students</option>
+          <option>Allocated</option>
+          <option>Unallocated</option>
+          <option>No preferences</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- STUDENTS TABLE -->
+    <div class="table-responsive">
+      <table class="table pm-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>ID</th>
+            <th>Prefs</th>
+            <th>1st</th>
+            <th>2nd</th>
+            <th>Allocated</th>
+            <th class="text-end">Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Jane Doe</td>
+            <td>12345</td>
+            <td>✔</td>
+            <td>AI Chatbot</td>
+            <td>ML Dashboard</td>
+            <td>AI Chatbot</td>
+            <td class="text-end">
+              <button class="btn btn-ghost btn-sm">Select</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Tom Brown</td>
+            <td>12346</td>
+            <td>✔</td>
+            <td>E-commerce</td>
+            <td>AI Chatbot</td>
+            <td>Unallocated</td>
+            <td class="text-end">
+              <button class="btn btn-ghost btn-sm">Select</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Mia Johnson</td>
+            <td>12347</td>
+            <td>✖</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Unallocated</td>
+            <td class="text-end">
+              <button class="btn btn-ghost btn-sm">Select</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PROJECT SEARCH + FILTER -->
+  <div class="card pm p-3 mb-4">
+    <h5 class="fw-semibold mb-3 pm-title">Projects</h5>
+
+    <div class="d-flex flex-wrap gap-4 mb-3 justify-content-between">
+      <!-- Search -->
+      <div style="min-width:260px; max-width:340px; flex-grow:1;">
+        <label class="form-label small text-secondary mb-1">Search projects</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search projects…">
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div style="min-width:170px;">
+        <label class="form-label small text-secondary mb-1">Filter</label>
+        <select class="form-select form-select-sm">
+          <option selected>Has spaces</option>
+          <option>All projects</option>
+          <option>Fully allocated</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PROJECTS TABLE -->
+    <div class="table-responsive">
+      <table class="table pm-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Project title</th>
+            <th>Supervisor</th>
+            <th>Quota</th>
+            <th>Allocated</th>
+            <th>Remaining</th>
+            <th class="text-end">Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AI Chatbot</td>
+            <td>Dr. Smith</td>
+            <td>2</td>
+            <td>2 / 2</td>
+            <td>0</td>
+            <td class="text-end">
+              <button class="btn btn-ghost btn-sm" disabled>Full</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Data Mining Tool</td>
+            <td>Dr. Jones</td>
+            <td>3</td>
+            <td>1 / 3</td>
+            <td>2</td>
+            <td class="text-end">
+              <button class="btn btn-ghost btn-sm">Select</button>
+            </td>
+          </tr>
+          <tr>
+            <td>E-commerce Website</td>
+            <td>Dr. Patel</td>
+            <td>3</td>
+            <td>2 / 3</td>
+            <td>1</td>
+            <td class="text-end">
+              <button class="btn btn-ghost btn-sm">Select</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SELECTED SECTIONS -->
+  <div class="card pm p-3 mb-4">
+    <h5 class="fw-semibold mb-3 pm-title">Selected student</h5>
+    <p><strong>Name:</strong> Jane Doe</p>
+    <p><strong>Student ID:</strong> 12345</p>
+    <p><strong>Programme:</strong> BSc Computer Science</p>
+    <p class="fw-semibold mt-3 mb-1">Preferences:</p>
+    <ul class="small mb-2 text-secondary">
+      <li>1st: AI Chatbot</li>
+      <li>2nd: ML Dashboard</li>
+      <li>3rd: Data Mining Tool</li>
+    </ul>
+  </div>
+
+  <div class="card pm p-3 mb-4">
+    <h5 class="fw-semibold mb-3 pm-title">Selected project</h5>
+    <p><strong>Title:</strong> Data Mining Tool</p>
+    <p><strong>Supervisor:</strong> Dr. Jones</p>
+    <p><strong>Quota:</strong> 3 — <strong>Allocated:</strong> 1 — <strong>Remaining:</strong> 2</p>
+    <p class="fw-semibold mt-3 mb-1">Prerequisites:</p>
+    <ul class="small mb-2 text-secondary">
+      <li>AI Fundamentals</li>
+      <li>SQL</li>
+    </ul>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="text-center my-4">
+    <button type="button" class="btn btn-gradient me-2">Assign student</button>
+    <button type="button" class="btn btn-outline">Remove allocation</button>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="card pm p-3 mb-4">
+    <h5 class="fw-semibold mb-3 pm-title">Allocation summary</h5>
+    <ul class="small mb-0 text-secondary">
+      <li>Total students: 15</li>
+      <li>Allocated: 12</li>
+      <li>Unallocated: 3</li>
+      <li>Projects with space: 4</li>
+    </ul>
+  </div>
+</div>
+
+{% endblock %}

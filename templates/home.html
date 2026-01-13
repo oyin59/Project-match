@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Login | ProjectMatch{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6 col-lg-5">
+    <div class="card pm shadow-sm p-4">
+
+      <!-- Title -->
+      <h1 class="h4 text-center mb-4 pm-title">FYP Allocation System</h1>
+
+      <!-- Show error if there is one -->
+      {% if error %}
+        <div class="alert alert-error mb-3 small">
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'home' %}">
+        {% csrf_token %}
+
+        <!-- Role selection -->
+        <div class="mb-4 text-center">
+          <label class="form-label d-block mb-2">I am a:</label>
+          <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="role" id="r1" value="student" checked>
+            <label class="btn btn-outline" for="r1">Student</label>
+
+            <input type="radio" class="btn-check" name="role" id="r2" value="supervisor">
+            <label class="btn btn-outline" for="r2">Supervisor</label>
+
+            <input type="radio" class="btn-check" name="role" id="r3" value="admin">
+            <label class="btn btn-outline" for="r3">Admin</label>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email"
+                 class="form-control"
+                 name="email"
+                 placeholder="you@example.com">
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="form-label">Password</label>
+          <input type="password"
+                 class="form-control"
+                 name="password"
+                 placeholder="••••••••">
+        </div>
+
+        <!-- Login button -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-gradient">
+            Login
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

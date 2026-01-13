@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Project Preferences{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+  <!-- Page heading -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold">My Project Preferences</h2>
+    <p class="text-secondary mb-1">
+      Select and rank your top 3 project choices.
+    </p>
+    <p class="text-secondary small">
+      You can change these until
+      <span class="pm-title fw-semibold">[Preference Deadline]</span>.
+    </p>
+  </div>
+
+  <!-- 1ST CHOICE -->
+  <div class="card pm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-uppercase small text-secondary fw-semibold">1st Choice</span>
+        <span class="badge-soft small">Good match</span>
+      </div>
+
+      <h5 class="card-title mb-1">AI Chatbot for Customer Service</h5>
+      <p class="text-secondary mb-1 small">Supervisor: Dr. Smith</p>
+      <p class="text-secondary small mb-3">
+        Prerequisites met:
+        <span class="pm-pill small">2 / 3</span>
+        <span class="ms-2 text-muted small">(AI, Python ✅ • NLP ❌)</span>
+      </p>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-ghost btn-sm">
+          View details
+        </button>
+        <button type="button" class="btn btn-outline btn-sm">
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2ND CHOICE -->
+  <div class="card pm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-uppercase small text-secondary fw-semibold">2nd Choice</span>
+        <span class="badge-soft small">Strong match</span>
+      </div>
+
+      <h5 class="card-title mb-1">E-commerce Website Development</h5>
+      <p class="text-secondary mb-1 small">Supervisor: Prof. Jones</p>
+      <p class="text-secondary small mb-3">
+        Prerequisites met:
+        <span class="pm-pill small">3 / 3</span>
+        <span class="ms-2 text-muted small">(Web Dev, Database, JavaScript ✅)</span>
+      </p>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-ghost btn-sm">
+          View details
+        </button>
+        <button type="button" class="btn btn-outline btn-sm">
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3RD CHOICE (EMPTY STATE) -->
+  <div class="card pm mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-uppercase small text-secondary fw-semibold">3rd Choice</span>
+        <span class="badge-soft small">Not selected</span>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <a href="{% url 'student_projects' %}" class="btn btn-outline">
+          + Select a project
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTE -->
+  <p class="text-secondary small mb-4">
+    <strong>Note:</strong> You must select all 3 preferences before final submission.
+    Projects where you meet fewer prerequisites may be less likely to be allocated.
+  </p>
+
+  <!-- ACTION BUTTONS -->
+  <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mb-3">
+    <button type="button" class="btn btn-gradient px-4 py-2">
+      Submit Preferences
+    </button>
+    <button type="button" class="btn btn-ghost px-4 py-2">
+      Save as draft
+    </button>
+  </div>
+
+  <!-- STATUS FOOTER -->
+  <div class="text-center small">
+    <span class="me-2">💾 Status:</span>
+    <span class="pm-title">Saved as draft – not submitted yet</span>
+  </div>
+
+  <!-- Optional explanation -->
+  <div class="mt-4 small text-secondary text-center">
+    <p class="mb-1 fw-semibold">How ranking works</p>
+    <p class="mb-0">
+      Your 1st choice is considered first. If it is full or you are not eligible,
+      the system moves to your 2nd and then 3rd choice, taking into account
+      prerequisite matches and available spaces.
+    </p>
+  </div>
+
+</div>
+
+{% endblock %}

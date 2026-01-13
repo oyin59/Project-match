@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Supervisors | ProjectMatch{% endblock %}
+
+{% block content %}
+
+<div class="py-4">
+  <h4 class="fw-semibold mb-4 text-center pm-title">Supervisors</h4>
+
+  <!-- Search + Filters -->
+  <div class="d-flex justify-content-center mb-4">
+    <div class="d-flex gap-3 flex-wrap justify-content-center align-items-center"
+         style="max-width: 950px; width: 100%;">
+
+      <!-- Search -->
+      <div class="flex-grow-1" style="max-width: 380px;">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search supervisors...">
+        </div>
+      </div>
+
+      <!-- Filter: Department -->
+      <div>
+        <select class="form-select form-select-sm" style="width: 180px;">
+          <option selected>All departments</option>
+          <option>Computer Science</option>
+          <option>Data Science</option>
+          <option>Cybersecurity</option>
+        </select>
+      </div>
+
+      <!-- Filter: Load -->
+      <div>
+        <select class="form-select form-select-sm" style="width: 160px;">
+          <option selected>All load levels</option>
+          <option>Available quota</option>
+          <option>Near full</option>
+          <option>Fully allocated</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Supervisors table -->
+  <div class="card pm p-3">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Supervisor</th>
+          <th scope="col">Dept.</th>
+          <th scope="col">Projects</th>
+          <th scope="col">Students interested</th>
+          <th scope="col">Quota</th>
+          <th scope="col">Allocated</th>
+          <th scope="col" class="text-end"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dr. Sarah Smith</td>
+          <td>Computer Science</td>
+          <td>3</td>
+          <td>15</td>
+          <td>8</td>
+          <td>5</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Prof. James Jones</td>
+          <td>Computer Science</td>
+          <td>2</td>
+          <td>7</td>
+          <td>5</td>
+          <td>2</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Dr. Anita Patel</td>
+          <td>Data Science</td>
+          <td>2</td>
+          <td>6</td>
+          <td>3</td>
+          <td>2</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Dr. Michael Carter</td>
+          <td>Data Science</td>
+          <td>2</td>
+          <td>5</td>
+          <td>3</td>
+          <td>2</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Dr. Laura Green</td>
+          <td>Cybersecurity</td>
+          <td>1</td>
+          <td>3</td>
+          <td>2</td>
+          <td>1</td>
+          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="small text-secondary mt-3 mb-0 text-center">
+      Total: 5 supervisors · Projects: 10 · Spaces left: 8
+    </p>
+  </div>
+</div>
+
+{% endblock %}

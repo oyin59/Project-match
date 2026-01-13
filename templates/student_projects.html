@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Projects | ProjectMatch{% endblock %}
+{% block content %}
+
+<h3 class="text-center fw-bold mb-4">PROJECTS</h3>
+
+<!-- Search + Filters (still static for now) -->
+<div class="row g-3 align-items-center mb-4">
+  <div class="col-lg-6">
+    <div class="input-group">
+      <span class="input-group-text bg-white text-secondary border-secondary">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text"
+             class="form-control border-secondary"
+             placeholder="Search projects…">
+    </div>
+  </div>
+
+  <div class="col-lg-3">
+    <div class="form-floating">
+      <select class="form-select" id="filterSupervisor">
+        <option selected>All Supervisors</option>
+        {% for project in projects %}
+          <option>{{ project.supervisor.first_name }} {{ project.supervisor.last_name }}</option>
+        {% endfor %}
+      </select>
+      <label for="filterSupervisor">Filter by: Supervisor</label>
+    </div>
+  </div>
+
+  <div class="col-lg-3">
+    <div class="form-floating">
+      <select class="form-select" id="filterTopic">
+        <option selected>All Topics</option>
+        <!-- we’ll wire real topics later -->
+        <option>AI</option>
+        <option>Web Dev</option>
+        <option>Data Viz</option>
+      </select>
+      <label for="filterTopic">Topic</label>
+    </div>
+  </div>
+</div>
+
+{% for project in projects %}
+  <div class="card pm mb-3">
+    <div class="card-body">
+
+      <div class="d-flex justify-content-between flex-wrap">
+        <div>
+          <h5 class="card-title mb-1">{{ project.title }}</h5>
+          <small class="text-secondary">
+            Supervisor:
+            {{ project.supervisor.first_name }} {{ project.supervisor.last_name }}
+          </small>
+        </div>
+
+        <span class="badge-soft align-self-start ms-auto">
+          Spaces: {{ project.spaces_available }} available
+        </span>
+      </div>
+
+      <div class="pm-divider"></div>
+
+      <p class="mb-2 text-secondary">
+        {{ project.description |truncatechars:220 }}
+      </p>
+
+      <div class="mb-3">
+        <span class="pm-pill">
+          Prerequisites: {{ project.prerequisites|default:"None specified" }}
+        </span>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'student_project_detail' project.id %}" class="btn btn-ghost btn-sm">View Details</a>
+        <a href="#" class="btn btn-gradient btn-sm">Add to Preferences</a>
+      </div>
+
+    </div>
+  </div>
+{% empty %}
+  <p class="text-secondary">No projects available yet.</p>
+{% endfor %}
+
+<div class="text-center mt-4">
+  <a href="#" class="btn btn-outline px-4">More projects</a>
+</div>
+
+{% endblock %}

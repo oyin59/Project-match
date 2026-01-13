@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Project Details | ProjectMatch{% endblock %}
+
+{% block content %}
+
+<div class="mb-3">
+  <a href="{% url 'student_projects' %}" class="btn btn-ghost btn-sm">
+    ← Back to all projects
+  </a>
+</div>
+
+<div class="card pm">
+  <div class="card-body">
+
+    <!-- Title + supervisor + spaces -->
+    <div class="d-flex justify-content-between flex-wrap mb-2">
+      <div>
+        <h3 class="pm-title mb-1">{{ project.title }}</h3>
+        <small class="text-secondary">
+          Supervisor:
+          {{ project.supervisor.first_name }} {{ project.supervisor.last_name }}
+          ({{ project.supervisor.email }})
+        </small>
+      </div>
+
+      <span class="badge-soft align-self-start ms-auto">
+        Quota: {{ project.quota }} students
+      </span>
+    </div>
+
+    <div class="pm-divider my-3"></div>
+
+    <!-- PROJECT OVERVIEW (actual detailed explanation) -->
+    <h6 class="fw-semibold mb-2">Project Overview</h6>
+    <p class="text-secondary">
+      {{ project.description|linebreaks }}
+    </p>
+
+    <!-- Prerequisites -->
+    <h6 class="fw-semibold mb-2 mt-3">Prerequisites</h6>
+    <p class="text-secondary mb-0">
+      {% if project.prerequisites %}
+        {{ project.prerequisites }}
+      {% else %}
+        None specified for this project.
+      {% endif %}
+    </p>
+
+  </div>
+</div>
+
+{% endblock %}

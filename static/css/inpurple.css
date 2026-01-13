@@ -1,0 +1,197 @@
+/* ==========================================================
+   PROJECTMATCH – ASTON SOFT UI THEME
+   Neumorphic-inspired, functionality-safe
+   ========================================================== */
+
+/* ---------- COLOR SYSTEM ---------- */
+:root {
+  --pm-brand:              #a234b5;
+  --pm-brand-contrast:     #ffffff;
+  --pm-brand-light:        #ecd0f1;
+  --pm-brand-dark:         #63206f;
+  --pm-brand-alt:          #c56fd5;
+
+  --pm-bg-main:            #610064;
+  --pm-bg-page:            #f6f1f9;
+  --pm-bg-card:            #f9f6fb;
+  --pm-bg-soft:            #f1e9f5;
+
+  --pm-text-primary:       #1a1a1a;
+  --pm-text-secondary:     #333;
+  --pm-text-muted:         #666;
+
+  --pm-border:             rgba(0,0,0,0.06);
+
+  /* Soft UI shadows */
+  --pm-shadow-raised:
+    6px 6px 14px rgba(0,0,0,0.12),
+   -6px -6px 14px rgba(255,255,255,0.9);
+
+  --pm-shadow-inset:
+    inset 4px 4px 10px rgba(0,0,0,0.12),
+    inset -4px -4px 10px rgba(255,255,255,0.9);
+}
+
+/* ---------- GLOBAL ---------- */
+body {
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--pm-text-primary);
+  background:
+    radial-gradient(800px 400px at 10% 0%, rgba(162,52,181,.15), transparent 30%),
+    radial-gradient(800px 400px at 90% 0%, rgba(197,111,213,.18), transparent 30%),
+    linear-gradient(180deg, #ffffff, var(--pm-bg-page));
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+}
+
+.text-muted { color: var(--pm-text-muted)!important; }
+.text-secondary { color: var(--pm-text-secondary)!important; }
+
+/* ---------- NAVBAR ---------- */
+.navbar.pm {
+  background: var(--pm-bg-main);
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+
+.navbar.pm .nav-link {
+  color: var(--pm-brand-light);
+  padding: .55rem 1rem;
+  border-radius: 999px;
+}
+
+.navbar.pm .nav-link:hover,
+.navbar.pm .nav-link.active {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+}
+
+/* ---------- CARDS (RAISED) ---------- */
+.card.pm {
+  background: var(--pm-bg-card);
+  border-radius: 18px;
+  padding: 1.6rem;
+  border: none;
+  box-shadow: var(--pm-shadow-raised);
+}
+
+/* Inset card (filters, panels) */
+.card.pm-inset {
+  background: var(--pm-bg-soft);
+  box-shadow: var(--pm-shadow-inset);
+}
+
+/* ---------- PROJECT BADGES / PILLS ---------- */
+.pm-pill {
+  display: inline-block;
+  padding: .45rem .9rem;
+  border-radius: 999px;
+  background: var(--pm-bg-soft);
+  box-shadow: var(--pm-shadow-inset);
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+/* ---------- TABLES ---------- */
+.table.pm-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--pm-bg-card);
+  box-shadow: var(--pm-shadow-raised);
+}
+
+.table.pm-table thead {
+  background: var(--pm-bg-main);
+}
+
+.table.pm-table thead th {
+  color: #fff;
+  font-weight: 700;
+  padding: 14px 16px;
+}
+
+.table.pm-table tbody tr {
+  transition: background .2s;
+}
+
+.table.pm-table tbody tr:nth-child(even) {
+  background: var(--pm-bg-soft);
+}
+
+.table.pm-table tbody tr:hover {
+  background: var(--pm-brand-light);
+}
+
+.table.pm-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--pm-border);
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-gradient {
+  background: var(--pm-brand);
+  color: #fff;
+  border-radius: 999px;
+  padding: .6rem 1.6rem;
+  font-weight: 700;
+  border: none;
+  box-shadow: var(--pm-shadow-raised);
+  transition: .2s;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  background: var(--pm-brand-dark);
+}
+
+.btn-ghost {
+  background: var(--pm-bg-soft);
+  border-radius: 12px;
+  padding: .55rem 1.3rem;
+  border: none;
+  box-shadow: var(--pm-shadow-inset);
+}
+
+/* ---------- FORMS (INSET) ---------- */
+.form-control,
+.form-select {
+  background: var(--pm-bg-soft);
+  border-radius: 14px;
+  border: none;
+  padding: .75rem;
+  box-shadow: var(--pm-shadow-inset);
+}
+
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  box-shadow:
+    inset 3px 3px 8px rgba(0,0,0,.18),
+    inset -3px -3px 8px rgba(255,255,255,.9),
+    0 0 0 3px rgba(162,52,181,.25);
+}
+
+/* ---------- ALERTS ---------- */
+.alert {
+  background: var(--pm-bg-soft);
+  border-radius: 14px;
+  box-shadow: var(--pm-shadow-raised);
+  border-left: 5px solid var(--pm-brand);
+}
+
+/* ---------- SCROLLBAR ---------- */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--pm-brand-alt);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pm-brand);
+}
