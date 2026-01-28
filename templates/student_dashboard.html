@@ -6,9 +6,9 @@
 
   <h1 class="mt-3 fw-bold pm-title">
     {% if student %}
-      Welcome, {{ student.first_name|default:"Student" }}!
+    Welcome, {{ student.first_name|default:"Student" }}!
     {% else %}
-      Welcome to ProjectMatch!
+    Welcome to ProjectMatch!
     {% endif %}
   </h1>
 
@@ -30,9 +30,9 @@
           Preferences:
           <span class="fw-semibold" style="color: var(--pm-purple);">
             {% if student and student.preferences_submitted %}
-              Submitted ✓
+            Submitted ✓
             {% else %}
-              Not submitted
+            Not submitted
             {% endif %}
           </span>
         </p>
@@ -41,9 +41,9 @@
           Allocation:
           <span class="fw-semibold" style="color: var(--pm-accent-gold);">
             {% if allocated_project %}
-              ✅ Allocated
+            ✅ Allocated
             {% else %}
-              ⏳ Pending
+            ⏳ Pending
             {% endif %}
           </span>
         </p>
@@ -53,12 +53,12 @@
         <p class="text-secondary mb-1 small">Allocated Project</p>
         <p class="mb-0">
           {% if allocated_project %}
-            {{ allocated_project.title }}<br>
-            <span class="small text-secondary">
-              Supervisor: {{ allocated_project.supervisor }}
-            </span>
+          {{ allocated_project.title }}<br>
+          <span class="small text-secondary">
+            Supervisor: {{ allocated_project.supervisor }}
+          </span>
           {% else %}
-            —
+          —
           {% endif %}
         </p>
       </div>
@@ -82,9 +82,15 @@
             Browse Available Projects
           </a>
 
+          {% if student.preferences_submitted %}
+          <a class="btn btn-outline" href="{% url 'student_preferences' %}">
+            Update Preferences
+          </a>
+          {% else %}
           <a class="btn btn-gradient" href="{% url 'student_preferences' %}">
             Submit Preferences
           </a>
+          {% endif %}
 
         </div>
       </div>

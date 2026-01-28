@@ -13,56 +13,48 @@
   </div>
 
   <!-- Page title -->
-  <h3 class="fw-semibold pm-title mb-2">Add New Project or Edit Project</h3>
+  <!-- Page title -->
+  {% if is_edit %}
+  <h3 class="fw-semibold pm-title mb-2">Edit Project</h3>
   <p class="mb-4 text-secondary">
-    Use this form to create a new project or update an existing one.
+    Update the details of your project below.
+    {% else %}
+  <h3 class="fw-semibold pm-title mb-2">Add New Project</h3>
+  <p class="mb-4 text-secondary">
+    Create a new project for students to apply to.
+    {% endif %}
     Fields marked with
     <span style="color: var(--pm-purple);">*</span>
     are required.
   </p>
 
   <div class="card pm p-4">
-    <form>
+    <form method="POST">
+      {% csrf_token %}
 
       <!-- Basic details -->
       <div class="mb-3">
-        <label for="projectTitle" class="form-label">
+        <label for="{{ form.title.id_for_label }}" class="form-label">
           Project title <span style="color: var(--pm-purple);">*</span>
         </label>
-        <input
-          type="text"
-          id="projectTitle"
-          class="form-control"
-          placeholder="e.g. AI Chatbot for Student Support"
-        >
+        {{ form.title }}
       </div>
 
       <div class="mb-3">
-        <label for="projectDescription" class="form-label">
+        <label for="{{ form.description.id_for_label }}" class="form-label">
           Project description <span style="color: var(--pm-purple);">*</span>
         </label>
-        <textarea
-          id="projectDescription"
-          class="form-control"
-          rows="4"
-          placeholder="Briefly describe what the project is about and what the student will do."
-        ></textarea>
+        {{ form.description }}
       </div>
 
       <!-- Quota -->
       <div class="row g-3 mb-4">
         <div class="col-md-4">
-          <label for="projectQuota" class="form-label">
+          <label for="{{ form.quota.id_for_label }}" class="form-label">
             Student quota <span style="color: var(--pm-purple);">*</span>
           </label>
           <div class="input-group">
-            <input
-              type="number"
-              id="projectQuota"
-              min="1"
-              class="form-control"
-              placeholder="e.g. 2"
-            >
+            {{ form.quota }}
             <span class="input-group-text">students</span>
           </div>
         </div>
@@ -70,115 +62,26 @@
 
       <div class="pm-divider mb-4"></div>
 
-      <!-- Prerequisites heading -->
+      <!-- Prerequisites -->
       <h5 class="fw-semibold mb-2 pm-title">Prerequisites</h5>
       <p class="mb-4 text-secondary">
-        Select the modules / skills that are important for this project.
-        <strong>Must-have</strong> prerequisites are required.
-        <strong>Nice-to-have</strong> prerequisites give extra weight in the allocation algorithm.
+        Specify prerequisites for this project.
       </p>
 
-      <div class="row g-4">
-
-        <!-- Must-have -->
-        <div class="col-lg-6">
-          <div class="card pm-glass h-100 p-3">
-            <h6 class="fw-semibold mb-2">Must-have (students must meet these)</h6>
-
-            <div class="mb-2">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="req-db-systems">
-                <label class="form-check-label" for="req-db-systems">
-                  Database Systems
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="req-web-dev">
-                <label class="form-check-label" for="req-web-dev">
-                  Web Development
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="req-ai">
-                <label class="form-check-label" for="req-ai">
-                  Artificial Intelligence
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="req-se">
-                <label class="form-check-label" for="req-se">
-                  Software Engineering
-                </label>
-              </div>
-            </div>
-
-            <button type="button" class="btn btn-ghost btn-sm mt-2">
-              + Add custom must-have
-            </button>
-          </div>
-        </div>
-
-        <!-- Nice-to-have -->
-        <div class="col-lg-6">
-          <div class="card pm-glass h-100 p-3">
-            <h6 class="fw-semibold mb-2">Nice-to-have (bonus if students have these)</h6>
-
-            <div class="mb-2">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="opt-python">
-                <label class="form-check-label" for="opt-python">
-                  Python
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="opt-js">
-                <label class="form-check-label" for="opt-js">
-                  JavaScript
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="opt-react">
-                <label class="form-check-label" for="opt-react">
-                  React
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="opt-data">
-                  <label class="form-check-label" for="opt-data">
-                    Data analysis / visualisation
-                  </label>
-              </div>
-            </div>
-
-            <button type="button" class="btn btn-ghost btn-sm mt-2">
-              + Add custom nice-to-have
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Minimum threshold -->
-      <div class="row g-3 mt-4 mb-4">
-        <div class="col-md-5">
-          <label for="minMatch" class="form-label">
-            Minimum qualification threshold
-          </label>
-          <select id="minMatch" class="form-select">
-            <option selected>Student must meet at least 2 out of 5</option>
-            <option>Student must meet at least 3 out of 5</option>
-            <option>Student must meet at least 4 out of 5</option>
-            <option>Student must meet all must-have prerequisites</option>
-          </select>
-        </div>
+      <div class="mb-3">
+        <label for="{{ form.prerequisites.id_for_label }}" class="form-label">
+          Prerequisites
+        </label>
+        {{ form.prerequisites }}
       </div>
 
       <div class="pm-divider"></div>
 
       <!-- Buttons -->
       <div class="d-flex justify-content-end gap-2 mt-3">
-        <button type="button" class="btn btn-ghost">
+        <a href="{% url 'supervisor_dashboard' %}" class="btn btn-ghost">
           Cancel
-        </button>
+        </a>
         <button type="submit" class="btn btn-gradient">
           Save project
         </button>

@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<!-- Page Header (Aston purple hero) -->
+<!-- Page Header -->
 <section class="pm-hero">
   <div class="pm-step-label">Student Profile</div>
   <div class="pm-hero-title">Your Information</div>
@@ -14,27 +14,24 @@
   </p>
 </section>
 
-<form class="row g-4">
+<form method="POST" class="row g-4">
+  {% csrf_token %}
 
   <!-- LEFT COLUMN -->
   <div class="col-lg-6">
 
-    <!-- Personal Info Card -->
+    <!-- Personal Info -->
     <div class="card pm p-4 mb-4">
       <h5 class="card-title mb-3">Personal Information</h5>
 
-      <label class="form-label">Name</label>
-      <input type="text" class="form-control mb-3" placeholder="e.g. Jane Doe">
-
       <label class="form-label">Student ID</label>
-      <input type="text" class="form-control mb-3" placeholder="e.g. 123456">
+      {{ form.student_number }}
 
-      <label class="form-label">Email</label>
-      <input type="email" class="form-control mb-3" placeholder="you@example.com">
+      <label class="form-label mt-3">Course</label>
+      {{ form.course }}
 
-      <label class="form-label">Course</label>
-      <input type="text" class="form-control mb-1" placeholder="e.g. BSc Computer Science">
-      <small class="text-muted">Use your official course title.</small>
+      <label class="form-label mt-3">Department</label>
+      {{ form.department }}
     </div>
 
     <!-- Academic Background -->
@@ -42,12 +39,27 @@
       <h5 class="card-title mb-3">Academic Background</h5>
 
       <label class="form-label">Summary</label>
-      <textarea rows="6" class="form-control mb-2"
-        placeholder="Briefly describe your academic experience, key modules, grades, or areas you enjoyed."></textarea>
+      {{ form.academic_summary }}
 
-      <button type="button" class="btn btn-outline btn-sm">
-        + Add Modules
-      </button>
+      <h6 class="mt-4">Modules</h6>
+      <div id="modules-container">
+        {% if modules %}
+          {% for module in modules %}
+            <div class="form-check">
+              <input class="form-check-input"
+                     type="checkbox"
+                     name="modules"
+                     value="{{ module.id }}"
+                     {% if module.id in selected_modules %}checked{% endif %}>
+              <label class="form-check-label">
+                {{ module.code }} – {{ module.name }}
+              </label>
+            </div>
+          {% endfor %}
+        {% else %}
+          <small class="text-muted">Select a department to view modules.</small>
+        {% endif %}
+      </div>
     </div>
 
   </div>
@@ -55,40 +67,109 @@
   <!-- RIGHT COLUMN -->
   <div class="col-lg-6">
 
-    <!-- Skills -->
+    <!-- Skills & Interests -->
     <div class="card pm p-4 mb-4">
-      <h5 class="card-title mb-3">Skills</h5>
+      <h5 class="card-title mb-3">Skills & Interests</h5>
 
-      <label class="form-label">Technical & Soft Skills</label>
-      <textarea rows="6" class="form-control mb-2"
-        placeholder="e.g. Python, Web Development, Data Analysis, Teamwork, Communication"></textarea>
+      <label class="form-label">Skills</label>
+      {{ form.skills }}
 
-      <button type="button" class="btn btn-outline btn-sm">
-        + Add Skills
-      </button>
-    </div>
-
-    <!-- Research Interests -->
-    <div class="card pm p-4 mb-4">
-      <h5 class="card-title mb-3">Research Interests</h5>
-
-      <input type="text" class="form-control mb-2" placeholder="e.g. Artificial Intelligence">
-      <input type="text" class="form-control mb-2" placeholder="e.g. Human–Computer Interaction">
-      <input type="text" class="form-control mb-3" placeholder="e.g. Data Visualisation">
-
-      <button type="button" class="btn btn-outline btn-sm">
-        + Add Interest
-      </button>
+      <label class="form-label mt-3">Research Interests</label>
+      {{ form.research_interests }}
     </div>
 
   </div>
 
   <!-- ACTION BUTTONS -->
-  <div class="col-12 text-center">
-    <button type="submit" class="btn btn-gradient px-4 py-2 me-3">Save Profile</button>
-    <button type="button" class="btn btn-ghost px-4 py-2">Cancel</button>
+  <div class="col-12 text-center mt-3">
+    <button type="submit" name="save_draft" class="btn btn-ghost me-3">
+      Save Draft
+    </button>
+
+    <button type="submit" name="submit_profile" class="btn btn-gradient">
+      Submit Profile
+    </button>
   </div>
 
 </form>
+
+<!-- AJAX SCRIPT -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const departmentSelect = document.getElementById("id_department");
+  const courseSelect = document.getElementById("id_course");
+  const modulesContainer = document.getElementById("modules-container");
+
+  if (!departmentSelect || !courseSelect) return;
+
+  // 1. When Department Changes -> Load Courses
+  departmentSelect.addEventListener("change", function () {
+    const departmentId = this.value;
+
+    // Clear modules immediately
+    modulesContainer.innerHTML = "<small class='text-muted'>Select a course to view modules.</small>";
+    // Clear course dropdown
+    courseSelect.innerHTML = "<option value=''>---------</option>";
+
+    if (!departmentId) {
+      return;
+    }
+
+    fetch(`/ajax/load-courses/?department_id=${departmentId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.length === 0) {
+           // No courses
+        } else {
+          data.forEach(course => {
+            const option = document.createElement("option");
+            option.value = course.id;
+            option.textContent = course.name;
+            courseSelect.appendChild(option);
+          });
+        }
+      });
+  });
+
+  // 2. When Course Changes -> Load Modules
+  courseSelect.addEventListener("change", function () {
+    const courseId = this.value;
+
+    modulesContainer.innerHTML = ""; // Clear existing modules
+
+    if (!courseId) {
+      modulesContainer.innerHTML = "<small class='text-muted'>Select a course to view modules.</small>";
+      return;
+    }
+
+    fetch(`/ajax/load-modules/?course_id=${courseId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.length === 0) {
+          modulesContainer.innerHTML =
+            "<small class='text-muted'>No modules found for this course.</small>";
+          return;
+        }
+
+        data.forEach(module => {
+          const div = document.createElement("div");
+          div.classList.add("form-check");
+
+          div.innerHTML = `
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="modules"
+                   value="${module.id}">
+            <label class="form-check-label">
+              ${module.code} – ${module.name}
+            </label>
+          `;
+
+          modulesContainer.appendChild(div);
+        });
+      });
+  });
+});
+</script>
 
 {% endblock %}

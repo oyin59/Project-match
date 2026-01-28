@@ -14,105 +14,73 @@
     </a>
   </div>
 
-  <!-- Project Card 1 -->
-  <div class="card pm mb-4">
-    <div class="card-body">
+  <!-- Projects List -->
+  <div class="row g-4">
 
-      <!-- Title -->
-      <h5 class="card-title mb-2">AI Chatbot for Customer Service</h5>
-      <div class="pm-divider"></div>
+    {% for project in projects %}
+    <div class="col-lg-6">
+      <div class="card pm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="card-title fw-bold mb-0">
+              {{ project.title }}
+            </h5>
+            <span class="badge 
+              {% if project.allocated_count >= project.quota %}bg-success
+              {% elif project.allocated_count > 0 %}bg-warning text-dark
+              {% else %}bg-secondary{% endif %}">
+              {% if project.allocated_count >= project.quota %}
+              Fully allocated
+              {% elif project.allocated_count > 0 %}
+              Partially filled
+              {% else %}
+              Open
+              {% endif %}
+            </span>
+          </div>
 
-      <!-- Project status & stats -->
-      <p class="text-secondary small mb-1">
-        Status:
-        <span class="fw-semibold" style="color: var(--pm-purple);">
-          ✔ Fully allocated
-        </span>
-      </p>
+          <p class="card-text text-secondary mb-3">
+            {{ project.description|truncatewords:20 }}
+          </p>
 
-      <p class="text-secondary small mb-1">
-        Quota:
-        <span class="fw-semibold">2 students</span>
-      </p>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="small">
+              <div class="text-muted mb-1">Quota</div>
+              <div class="fw-semibold">{{ project.quota }} students</div>
+            </div>
+            <div class="small text-end">
+              <div class="text-muted mb-1">Allocated</div>
+              <div class="fw-semibold">{{ project.allocated_count }} / {{ project.quota }}</div>
+            </div>
+            <div class="small text-end">
+              <div class="text-muted mb-1">Interested</div>
+              <div class="fw-semibold">--</div>
+            </div>
+          </div>
 
-      <p class="text-secondary small mb-1">
-        Students allocated:
-        <span class="pm-pill small">2 / 2</span>
-      </p>
+          <div class="d-grid gap-2">
+            <a href="{% url 'supervisor_project_detail' project.id %}" class="btn btn-outline-primary">
+              View Details
+            </a>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-ghost w-100 text-danger" disabled>Delete</button>
+              <button class="btn btn-sm btn-ghost w-100" disabled>View Students</button>
+            </div>
+          </div>
 
-      <p class="text-secondary small mb-3">
-        Students interested: 5
-      </p>
-
-      <!-- Allocated Students -->
-      <p class="fw-semibold small mb-1">Allocated students</p>
-      <ul class="text-secondary small mb-3">
-        <li>John Smith (Met 2/3 prerequisites – 1st choice)</li>
-        <li>Jane Doe (Met 3/3 prerequisites – 1st choice)</li>
-      </ul>
-
-      <!-- Buttons -->
-      <div class="d-flex justify-content-end gap-2">
-        <a href="#" class="btn btn-ghost btn-sm">Edit project</a>
-        <a href="#" class="btn btn-outline btn-sm">Delete</a>
-        <a href="#" class="btn btn-gradient btn-sm">View all students</a>
+        </div>
       </div>
-
     </div>
-  </div>
-
-  <!-- Project Card 2 -->
-  <div class="card pm mb-4">
-    <div class="card-body">
-
-      <!-- Title -->
-      <h5 class="card-title mb-2">Online Learning Management System</h5>
-      <div class="pm-divider"></div>
-
-      <!-- Stats -->
-      <p class="text-secondary small mb-1">
-        Status:
-        <span class="fw-semibold" style="color: var(--pm-accent-gold);">
-          ⧗ Partially filled
-        </span>
-      </p>
-
-      <p class="text-secondary small mb-1">
-        Quota:
-        <span class="fw-semibold">3 students</span>
-      </p>
-
-      <p class="text-secondary small mb-1">
-        Students allocated:
-        <span class="pm-pill small">2 / 3</span>
-      </p>
-
-      <p class="text-secondary small mb-3">
-        Students interested: 7
-      </p>
-
-      <!-- Allocated Students -->
-      <p class="fw-semibold small mb-1">Allocated students</p>
-      <ul class="text-secondary small mb-3">
-        <li>Mike Johnson (Met 3/3 prerequisites – 2nd choice)</li>
-        <li>Sarah Lee (Met 2/3 prerequisites – 1st choice)</li>
-      </ul>
-
-      <!-- Buttons -->
-      <div class="d-flex justify-content-end gap-2">
-        <a href="#" class="btn btn-ghost btn-sm">Edit project</a>
-        <a href="#" class="btn btn-outline btn-sm">Delete</a>
-        <a href="#" class="btn btn-gradient btn-sm">View all students</a>
+    {% empty %}
+    <div class="col-12">
+      <div class="text-center py-5 text-muted">
+        <p>You haven't created any projects yet.</p>
+        <a href="{% url 'supervisor_add_project' %}" class="btn btn-gradient">Create your first project</a>
       </div>
-
     </div>
-  </div>
+    {% endfor %}
 
-  <!-- Load more -->
-  <div class="text-center mt-3">
-    <button class="btn btn-outline px-4">More projects</button>
   </div>
-
 </div>
 
 {% endblock %}
