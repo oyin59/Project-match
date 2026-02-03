@@ -1,9 +1,11 @@
 # app_name/views.py
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.http import JsonResponse
 from .models import (
     Student, Supervisor, Admin, Project,
-    StudentProfileDetails, StudentModule, Module, Course
+    StudentProfileDetails, StudentModule, Module, Course,
+    StudentPreference
 )
 from django.db.models import Count, Sum
 from .forms import StudentProfileForm
@@ -71,24 +73,224 @@ def student_dashboard(request):
 
     if request.session.get("user_role") == "student":
         student_id = request.session.get("user_id")
-        student = Student.objects.filter(id= student_id).first()
+        student = Student.objects.filter(id=student_id).first()
 
-        if student and student.allocated_project:
-            allocated_project = student.allocated_project
+        if student:
+            if student.allocated_project:
+                allocated_project = student.allocated_project
+            
+            # Count selected preferences
+            from .models import StudentPreference
+            pref_count = StudentPreference.objects.filter(student=student).count()
+            preferences_submitted = student.preferences_submitted
 
     context = { 
         "role": "student",
         "student": student,
         "allocated_project": allocated_project,
+        "pref_count": pref_count,
+        "preferences_submitted": preferences_submitted,
     }        
     return render(request, "student_dashboard.html", context)
 
+
+
+
+def ajax_load_courses(request):
+    department_id = request.GET.get("department_id")
+    courses = Course.objects.filter(department_id=department_id).values("id", "name")
+    return JsonResponse(list(courses), safe=False)
+
+
+def ajax_load_modules(request):
+    course_id = request.GET.get("course_id")
+    modules = Module.objects.filter(course_id=course_id).values("id", "code", "name")
+    return JsonResponse(list(modules), safe=False)
+
+
+
+def student_projects(request):
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+        
+    student = get_object_or_404(Student, id=request.session["user_id"])
+    
+    # Base Query
+    projects = Project.objects.select_related("supervisor").all()
+    
+    # 1. Search (Title or Description)
+    query = request.GET.get('q', '').strip()
+    if query:
+        from django.db.models import Q
+        projects = projects.filter(
+            Q(title__icontains=query) | 
+            Q(description__icontains=query)
+        )
+        
+    # 2. Filter by Supervisor
+    supervisor_id = request.GET.get('supervisor')
+    if supervisor_id and supervisor_id.isdigit():
+        projects = projects.filter(supervisor_id=int(supervisor_id))
+        
+    # Get all supervisors for the dropdown
+    all_supervisors = Supervisor.objects.all().order_by('last_name')
+    
+    # Get current student's selected project IDs
+    selected_project_ids = StudentPreference.objects.filter(student=student).values_list("project_id", flat=True)
+    pref_count = len(selected_project_ids)
+
+    context = {
+        "role": "student",
+        "projects": projects,
+        "all_supervisors": all_supervisors,
+        "selected_project_ids": list(selected_project_ids),
+        "pref_count": pref_count,
+        "preferences_submitted": student.preferences_submitted,
+        "current_search": query,
+        "current_supervisor": int(supervisor_id) if supervisor_id and supervisor_id.isdigit() else None
+    }
+    return render(request, "student_projects.html", context)
+
+
+def student_add_preference(request, project_id):
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+    
+    student = get_object_or_404(Student, id=request.session["user_id"])
+    
+    # LOCK: Cannot add if submitted
+    if student.preferences_submitted:
+        messages.error(request, "Preferences are locked. You cannot add projects after creating a submission.")
+        return redirect("student_projects")
+
+    project = get_object_or_404(Project, id=project_id)
+    
+    # Check if already in preferences
+    if StudentPreference.objects.filter(student=student, project=project).exists():
+        return redirect("student_projects")
+    
+    # Check if already has 3 preferences
+    current_count = StudentPreference.objects.filter(student=student).count()
+    if current_count >= 3:
+        return redirect("student_projects")
+    
+    # Add new preference as UNRANKED (rank=0)
+    StudentPreference.objects.create(
+        student=student,
+        project=project,
+        rank=0
+    )
+    
+    return redirect("student_projects")
+
+def student_project_detail(request, project_id):
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+
+    project = get_object_or_404(Project, id=project_id)
+    return render(request, "student_project_detail.html", {
+        "role": "student",
+        "project": project
+    })
+
+
+def student_preferences(request):
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+
+    student = get_object_or_404(Student, id=request.session["user_id"])
+    print(f"DEBUG: student_preferences view accessed. User: {student.email}, preferences_submitted: {student.preferences_submitted}")
+    
+    # Get user preferences
+    preferences = StudentPreference.objects.filter(student=student).select_related("project", "project__supervisor").order_by("rank")
+
+    # SELF-HEALING: If marked submitted but has NO preferences, it's an invalid state. Unlock it.
+    if student.preferences_submitted and preferences.count() == 0:
+        print(f"DEBUG: Auto-correcting invalid state for {student.email} (Submitted=True but count=0)")
+        student.preferences_submitted = False
+        student.save()
+
+    return render(request, "student_preferences.html", {
+        "role": "student",
+        "preferences": preferences,
+        "preferences_submitted": student.preferences_submitted
+    })
+
+def student_save_draft(request):
+    """
+    Explicitly saves draft (visual feedback only since DB is always up to date).
+    """
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+        
+    student = get_object_or_404(Student, id=request.session["user_id"])
+    if student.preferences_submitted:
+         messages.info(request, "Your preferences are already submitted.")
+    else:
+         messages.success(request, "Preferences saved as draft.")
+         
+    return redirect("student_preferences")
+
+
+def student_remove_preference(request, preference_id):
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+    
+    student = get_object_or_404(Student, id=request.session["user_id"])
+    
+    # LOCK: Cannot remove if submitted
+    if student.preferences_submitted:
+        messages.error(request, "Preferences are locked. You cannot remove projects after submission.")
+        return redirect("student_preferences")
+
+    preference = get_object_or_404(StudentPreference, id=preference_id, student=student)
+    preference.delete()
+    
+    # Re-rank ONLY the remaining RANKED preferences
+    # Filter for rank__gt=0 to exclude unranked items
+    ranked_remaining = StudentPreference.objects.filter(student=student, rank__gt=0).order_by("rank")
+    for i, pref in enumerate(ranked_remaining):
+        # Assign new rank starting from 1
+        pref.rank = i + 1
+        pref.save()
+        
+    return redirect("student_preferences")
+
+
+def student_submit_preferences(request):
+    """
+    Finalizes the student's preferences.
+    """
+# ... implementation continues below ...
+    """
+    Finalizes the student's preferences.
+    """
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+    
+    if request.method == "POST":
+        student = get_object_or_404(Student, id=request.session["user_id"])
+        
+        # Check if they have at least 1 preference? 
+        count = StudentPreference.objects.filter(student=student).count()
+        if count == 0:
+            messages.error(request, "You must select at least one project before submitting.")
+            return redirect("student_preferences")
+            
+        student.preferences_submitted = True
+        student.save()
+        
+        messages.success(request, "Your preferences have been successfully submitted!")
+        return redirect("student_dashboard")
+        
+    return redirect("student_preferences")
 
 def student_profile(request):
     if request.session.get("user_role") != "student":
         return redirect("home")
 
     student = Student.objects.get(id=request.session["user_id"])
+    print(f"DEBUG: student_profile view accessed. User: {student.email}, Initial preferences_submitted: {student.preferences_submitted}")
     profile, _ = StudentProfileDetails.objects.get_or_create(student=student)
     modules_qs = Module.objects.none()
     if profile.course_id:
@@ -102,9 +304,15 @@ def student_profile(request):
             profile = form.save(commit=False)
 
             if "submit_profile" in request.POST:
+                print(f"DEBUG: PROFILE SUBMITTED via POST for {student.email}")
                 profile.profile_status = "SUBMITTED"
-                student.preferences_submitted = True
-                student.save()
+                # Note: User requested separate submissions, so we don't auto-submit preferences here anymore
+                # unless explicitly desired. The previous code did: student.preferences_submitted = True
+                # I will REMOVE that side-effect to keep them distinct as requested.
+                # I will REMOVE that side-effect to keep them distinct as requested.
+                # student.save()
+                print(f"DEBUG: Saved profile. preferences_submitted is now: {student.preferences_submitted}")
+                messages.success(request, "Profile submitted successfully!")
 
             profile.save()
 
@@ -114,6 +322,10 @@ def student_profile(request):
                     student=student,
                     module_id=module_id
                 )
+            
+            if "submit_profile" not in request.POST:
+                 messages.success(request, "Profile draft saved.")
+                 return redirect("student_profile")
 
             return redirect("student_dashboard")
     else:
@@ -130,42 +342,61 @@ def student_profile(request):
         "selected_modules": list(selected_modules),
     })
 
-def ajax_load_courses(request):
-    department_id = request.GET.get("department_id")
-    courses = Course.objects.filter(department_id=department_id).values("id", "name")
-    return JsonResponse(list(courses), safe=False)
+
+def student_reorder_preference(request, preference_id, direction):
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+    
+    student = get_object_or_404(Student, id=request.session["user_id"])
+    
+    # LOCK: Cannot reorder if submitted
+    if student.preferences_submitted:
+        messages.error(request, "Preferences are locked. You cannot reorder projects after submission.")
+        return redirect("student_preferences")
+        
+    preference = get_object_or_404(StudentPreference, id=preference_id, student=student)
+    
+    # If starting rank is 0, give it the next available rank
+    if preference.rank == 0:
+        if direction == "up":
+             # Find max rank used so far
+             from django.db.models import Max
+             max_rank = StudentPreference.objects.filter(student=student).aggregate(Max('rank'))['rank__max'] or 0
+             preference.rank = max_rank + 1
+             preference.save()
+        # 'down' on unranked doesn't really mean anything
+        return redirect("student_preferences")
 
 
-def ajax_load_modules(request):
-    course_id = request.GET.get("course_id")
-    modules = Module.objects.filter(course_id=course_id).values("id", "code", "name")
-    return JsonResponse(list(modules), safe=False)
-
-
-
-def student_projects(request):
-    projects = Project.objects.select_related("supervisor").all()
-
-    context = {
-        "role": "student",
-        "projects": projects,
-    }
-    return render(request, "student_projects.html", context)
-
-def student_project_detail(request, project_id):
-    project = get_object_or_404(
-        Project.objects.select_related("supervisor"),
-        id=project_id
-    )
-
-    context = {
-        "role": "student",
-        "project": project,
-    }
-    return render(request, "student_project_detail.html", context)
-
-def student_preferences(request):
-    return render(request, "student_preferences.html", {"role": "student"})
+    # Standard reorder for ranked items
+    current_rank = preference.rank
+    if direction == "up" and current_rank > 1:
+        # Move Up: swap with rank-1
+        # BUT we must ensure the item at rank-1 exists
+        other = StudentPreference.objects.filter(student=student, rank=current_rank - 1).first()
+        if other:
+            preference.rank -= 1
+            other.rank += 1
+            preference.save()
+            other.save()
+            
+    elif direction == "down":
+        # Move Down: swap with rank+1
+        other = StudentPreference.objects.filter(student=student, rank=current_rank + 1).first()
+        if other:
+            preference.rank += 1
+            other.rank -= 1
+            preference.save()
+            other.save()
+        else:
+            # If no item below, moving down returns to unranked (rank 0)?
+            # Or just stays at bottom? User said "they are now able to rank it by themselves",
+            # implies dragging from unranked pool up to ranked list.
+            # Let's assume moving down from bottom simply makes it unranked again.
+            preference.rank = 0
+            preference.save()
+        
+    return redirect("student_preferences")
 
 
 def supervisor_dashboard(request):

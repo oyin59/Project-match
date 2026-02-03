@@ -30,6 +30,18 @@
 
     <div class="pm-divider my-3"></div>
 
+    <div class="mt-4">
+      {% if project.id in selected_project_ids %}
+      <button class="btn btn-success disabled"><i class="bi bi-check-circle"></i> Added to Preferences</button>
+      {% elif pref_count >= 3 or preferences_submitted %}
+      <button class="btn btn-outline-secondary" disabled>
+        {% if preferences_submitted %}Submitted (Locked){% else %}Selection limit reached{% endif %}
+      </button>
+      {% else %}
+      <a href="{% url 'student_add_preference' project.id %}" class="btn btn-gradient px-4">Add to Preferences</a>
+      {% endif %}
+    </div>
+
     <!-- PROJECT OVERVIEW (actual detailed explanation) -->
     <h6 class="fw-semibold mb-2">Project Overview</h6>
     <p class="text-secondary">
@@ -40,9 +52,9 @@
     <h6 class="fw-semibold mb-2 mt-3">Prerequisites</h6>
     <p class="text-secondary mb-0">
       {% if project.prerequisites %}
-        {{ project.prerequisites }}
+      {{ project.prerequisites }}
       {% else %}
-        None specified for this project.
+      None specified for this project.
       {% endif %}
     </p>
 

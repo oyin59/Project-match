@@ -44,20 +44,20 @@
       <h6 class="mt-4">Modules</h6>
       <div id="modules-container">
         {% if modules %}
-          {% for module in modules %}
-            <div class="form-check">
-              <input class="form-check-input"
-                     type="checkbox"
-                     name="modules"
-                     value="{{ module.id }}"
-                     {% if module.id in selected_modules %}checked{% endif %}>
-              <label class="form-check-label">
-                {{ module.code }} – {{ module.name }}
-              </label>
-            </div>
-          {% endfor %}
+        {% for module in modules %}
+        <div class="form-check">
+          {% if module.id in selected_modules %}
+          <input class="form-check-input" type="checkbox" name="modules" value="{{ module.id }}" checked>
+          {% else %}
+          <input class="form-check-input" type="checkbox" name="modules" value="{{ module.id }}">
+          {% endif %}
+          <label class="form-check-label">
+            {{ module.code }} – {{ module.name }}
+          </label>
+        </div>
+        {% endfor %}
         {% else %}
-          <small class="text-muted">Select a department to view modules.</small>
+        <small class="text-muted">Select a department to view modules.</small>
         {% endif %}
       </div>
     </div>
@@ -95,67 +95,70 @@
 
 <!-- AJAX SCRIPT -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const departmentSelect = document.getElementById("id_department");
-  const courseSelect = document.getElementById("id_course");
-  const modulesContainer = document.getElementById("modules-container");
+  document.addEventListener("DOMContentLoaded", function () {
+    const departmentSelect = document.getElementById("id_department");
+    const courseSelect = document.getElementById("id_course");
+    const modulesContainer = document.getElementById("modules-container");
 
-  if (!departmentSelect || !courseSelect) return;
+    if (!departmentSelect || !courseSelect) return;
 
-  // 1. When Department Changes -> Load Courses
-  departmentSelect.addEventListener("change", function () {
-    const departmentId = this.value;
+    // 1. When Department Changes -> Load Courses
+    departmentSelect.addEventListener("change", function () {
+      const departmentId = this.value;
 
-    // Clear modules immediately
-    modulesContainer.innerHTML = "<small class='text-muted'>Select a course to view modules.</small>";
-    // Clear course dropdown
-    courseSelect.innerHTML = "<option value=''>---------</option>";
-
-    if (!departmentId) {
-      return;
-    }
-
-    fetch(`/ajax/load-courses/?department_id=${departmentId}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.length === 0) {
-           // No courses
-        } else {
-          data.forEach(course => {
-            const option = document.createElement("option");
-            option.value = course.id;
-            option.textContent = course.name;
-            courseSelect.appendChild(option);
-          });
-        }
-      });
-  });
-
-  // 2. When Course Changes -> Load Modules
-  courseSelect.addEventListener("change", function () {
-    const courseId = this.value;
-
-    modulesContainer.innerHTML = ""; // Clear existing modules
-
-    if (!courseId) {
+      // Clear modules immediately
       modulesContainer.innerHTML = "<small class='text-muted'>Select a course to view modules.</small>";
-      return;
-    }
+      // Clear course dropdown
+      courseSelect.innerHTML = "<option value=''>---------</option>";
 
-    fetch(`/ajax/load-modules/?course_id=${courseId}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.length === 0) {
-          modulesContainer.innerHTML =
-            "<small class='text-muted'>No modules found for this course.</small>";
-          return;
-        }
+      if (!departmentId) {
+        return;
+      }
 
-        data.forEach(module => {
-          const div = document.createElement("div");
-          div.classList.add("form-check");
+      fetch(`/ajax/load-courses/?department_id=${departmentId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length === 0) {
+            // No courses
+          } else {
+            data.forEach(course => {
+              const option = document.createElement("option");
+              option.value = course.id;
+              option.textContent = course.name;
+              courseSelect.appendChild(option);
+            });
+          }
+        });
+    });
 
-          div.innerHTML = `
+    // 2. When Course Changes -> Load Modules
+    courseSelect.addEventListener("change", function () {
+      const courseId = this.value;
+
+      modulesContainer.innerHTML = ""; // Clear existing modules
+
+      if (!courseId) {
+        modulesContainer.innerHTML = "<small class='text-muted'>Select a course to view modules.</small>";
+        return;
+      }
+
+      fetch(`/ajax/load-modules/?course_id=${courseId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length === 0) {
+            modulesContainer.innerHTML =
+              "<small class='text-muted'>No modules found for this course.</small>";
+            return;
+          }
+
+          data.forEach(module => {
+            const div = document.createElement("div");
+            div.classList.add("form-check");
+
+            // Simplified JS injection for consistency
+            // Note: JS logic doesn't support 'checked' state from server directly unless we load it differently, 
+            // but this is for AJAX loading on change, so no 'selected_modules' context there anyway.
+            div.innerHTML = `
             <input class="form-check-input"
                    type="checkbox"
                    name="modules"
@@ -165,11 +168,11 @@ document.addEventListener("DOMContentLoaded", function () {
             </label>
           `;
 
-          modulesContainer.appendChild(div);
+            modulesContainer.appendChild(div);
+          });
         });
-      });
+    });
   });
-});
 </script>
 
 {% endblock %}

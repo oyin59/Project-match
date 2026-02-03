@@ -148,3 +148,21 @@ class StudentModule(models.Model):
         return f"{self.student.email} - {self.module.code}"
 
 
+class StudentPreference(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name="preferences"
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE
+    )
+    rank = models.IntegerField(default=0)  # 0 = Unranked, 1, 2, 3 = Ranked
+
+    class Meta:
+        unique_together = ("student", "project")
+        ordering = ["rank"]
+
+    def __str__(self):
+        return f"{self.student.email} - {self.project.title} (Rank {self.rank})"

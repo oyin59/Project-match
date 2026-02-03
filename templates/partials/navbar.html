@@ -9,31 +9,70 @@
       <ul class="navbar-nav ms-auto">
 
         {% if role == "student" %}
-          <li class="nav-item"><a class="nav-link {% if request.path|slice:':9' == '/student/' %}active{% endif %}" href="{% url 'student_dashboard' %}">Home</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/student/profile/' %}{% endif %}" href="{% url 'student_profile' %}">Profile</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/student/projects/' %}{% endif %}" href="{% url 'student_projects' %}">Projects</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/student/preferences/' %}{% endif %}" href="{% url 'student_preferences' %}">Preferences</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Allocation</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Logout</a></li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}"
+            href="{% url 'student_dashboard' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'student_profile' %}active{% endif %}"
+            href="{% url 'student_profile' %}">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'student_projects' in request.resolver_match.url_name %}active{% endif %}"
+            href="{% url 'student_projects' %}">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'student_preference' in request.resolver_match.url_name %}active{% endif %}"
+            href="{% url 'student_preferences' %}">Preferences</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#">Allocation</a></li>
+        <li class="nav-item"><a class="nav-link" href="/">Logout</a></li>
 
         {% elif role == "supervisor" %}
-          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/' %}active{% endif %}" href="{% url 'supervisor_dashboard' %}">Home</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/projects' %}{% endif %}" href="{% url 'supervisor_projects' %}">Projects</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/add_projects' %}{% endif %}" href="{% url 'supervisor_add_project' %}">Add Projects</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/supervisor/interested_students' %}{% endif %}" href="{% url 'supervisor_interested_students' %}">Interested Students</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Logout</a></li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'supervisor_dashboard' %}active{% endif %}"
+            href="{% url 'supervisor_dashboard' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'supervisor_project' in request.resolver_match.url_name and 'add' not in request.resolver_match.url_name %}active{% endif %}"
+            href="{% url 'supervisor_projects' %}">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'supervisor_add_project' %}active{% endif %}"
+            href="{% url 'supervisor_add_project' %}">Add Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'supervisor_interested_students' %}active{% endif %}"
+            href="{% url 'supervisor_interested_students' %}">Interested Students</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="/">Logout</a></li>
 
         {% elif role == "admin" %}
-          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_dashboard/' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Home</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_students/' %}{% endif %}" href="{% url 'admin_students' %}">Students</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_projects/' %}{% endif %}" href="{% url 'admin_projects' %}">Projects</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/admin_supervisors/' %}{% endif %}" href="{% url 'admin_supervisors' %}">Supervisors</a></li>
-          <li class="nav-item"><a class="nav-link{% if request.path == '/admin_allocations/' %}{% endif %}" href="{% url 'admin_allocations' %}">Allocations</a></li>
-          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Logout</a></li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
+            href="{% url 'admin_dashboard' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'admin_students' %}active{% endif %}"
+            href="{% url 'admin_students' %}">Students</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'admin_projects' %}active{% endif %}"
+            href="{% url 'admin_projects' %}">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'admin_supervisors' %}active{% endif %}"
+            href="{% url 'admin_supervisors' %}">Supervisors</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'admin_allocations' %}active{% endif %}"
+            href="{% url 'admin_allocations' %}">Allocations</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="/">Logout</a></li>
 
         {% else %}
-          <!-- guest / fallback -->
-          <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Home</a></li>
+        <!-- guest / fallback -->
+        <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Home</a></li>
         {% endif %}
 
       </ul>

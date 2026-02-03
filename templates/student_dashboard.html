@@ -29,11 +29,7 @@
         <p class="mb-1">
           Preferences:
           <span class="fw-semibold" style="color: var(--pm-purple);">
-            {% if student and student.preferences_submitted %}
-            Submitted ✓
-            {% else %}
-            Not submitted
-            {% endif %}
+            {{ pref_count }} / 3 selected
           </span>
         </p>
 
