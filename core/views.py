@@ -408,17 +408,22 @@ def supervisor_dashboard(request):
 
     from django.db.models import Sum, Count
 
+    # Calculate Interested Students (Distinct count)
+    interested_student_count = StudentPreference.objects.filter(project__supervisor=supervisor).values("student").distinct().count()
+
     return render(request, "supervisor_dashboard.html", {
         "role": "supervisor",
         "supervisor": supervisor,
         "projects": supervisor.projects.annotate(
-            allocated_count=Count('allocated_students')
+            allocated_count=Count('allocated_students'),
+            interested_count=Count('studentpreference')
         ),
         "total_projects": supervisor.projects.count(),
         "total_quota": supervisor.projects.aggregate(Sum('quota'))['quota__sum'] or 0,
         "total_allocated": supervisor.projects.aggregate(
             total=Count('allocated_students')
         )['total'] or 0,
+        "interested_student_count": interested_student_count,
         "recent_projects": supervisor.projects.order_by('-created_at')[:5]
     })
 
@@ -501,7 +506,83 @@ def supervisor_edit_project(request, project_id):
 
 
 def supervisor_interested_students(request):
-    return render(request, "supervisor_interested_students.html", {"role": "supervisor"})
+    if request.session.get("user_role") != "supervisor":
+        return redirect("home")
+
+    supervisor_id = request.session.get("user_id")
+    supervisor = get_object_or_404(Supervisor, id=supervisor_id)
+    
+    # Get all projects for filter dropdown
+    projects = supervisor.projects.all()
+    
+    # Base Query: Preferences for this supervisor's projects
+    preferences = StudentPreference.objects.filter(
+        project__supervisor=supervisor
+    ).select_related('student', 'project', 'student__profile').order_by('project', 'rank')
+    
+    # Global Stats
+    total_projects_count = projects.count()
+    
+    # Default Summary (All Projects)
+    summary_interested = StudentPreference.objects.filter(project__supervisor=supervisor).values('student').distinct().count()
+    summary_quota = "Varies"
+    summary_projects_count = total_projects_count
+    summary_allocated = Student.objects.filter(allocated_project__supervisor=supervisor).order_by('first_name')
+    
+    selected_project = None
+
+    # Filter by Project
+    selected_project_id = request.GET.get('project')
+    if selected_project_id and selected_project_id.isdigit():
+        project_id = int(selected_project_id)
+        # Verify project belongs to supervisor
+        selected_project = projects.filter(id=project_id).first()
+        
+        if selected_project:
+            # Filter preferences
+            preferences = preferences.filter(project_id=project_id)
+            
+            # Update Summary for specific project
+            summary_interested = preferences.count()
+            summary_quota = selected_project.quota
+            summary_allocated = selected_project.allocated_students.all()
+    
+    # Calculate Prerequisite Matches
+    from .utils import calculate_prerequisite_match
+    
+    # Evaluate queryset to list to attach attributes
+    # (Or keep as queryset and attach in template tag? No, user requested "Call this function per student-project pair" in backend)
+    # Iterate and attach
+    # Creating a list of wrappers or just attaching to model instances works for read-only view.
+    # We will fetch all first since we need to iterate.
+    # Note: 'preferences' was already a queryset.
+    
+    # Check if student has profile, handle exceptions if 'profile' doesn't exist (though our query does select_related)
+    # But select_related('student__profile') might fail if it's a specific reverse relation name or OneToOne?
+    # Model: student = models.OneToOneField(Student, related_name="profile") -> Access via student.profile
+    # However, if profile doesn't exist, accessing it raises specific Error unless we handle it.
+    # Let's be safe.
+    
+    preferences_list = []
+    for pref in preferences:
+        try:
+            skills = pref.student.profile.skills
+        except StudentProfileDetails.DoesNotExist:
+            skills = ""
+            
+        pref.match_data = calculate_prerequisite_match(skills, pref.project.prerequisites)
+        preferences_list.append(pref)
+
+    return render(request, "supervisor_interested_students.html", {
+        "role": "supervisor",
+        "preferences": preferences_list,
+        "projects": projects,
+        "selected_project_id": int(selected_project_id) if selected_project_id and selected_project_id.isdigit() else None,
+        "summary_interested": summary_interested,
+        "summary_quota": summary_quota,
+        "summary_projects_count": summary_projects_count,
+        "summary_allocated": summary_allocated
+    })
 
 
 def admin_dashboard(request):

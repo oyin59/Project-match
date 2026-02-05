@@ -43,7 +43,7 @@
         <div class="col-md-3">
           <div class="p-3 border rounded">
             <small class="text-secondary d-block">Interested</small>
-            <div class="fs-4 fw-semibold">--</div>
+            <div class="fs-4 fw-semibold">{{ interested_student_count }}</div>
           </div>
         </div>
 
@@ -71,7 +71,7 @@
           <tr>
             <td>{{ project.title }}</td>
             <td>{{ project.quota }}</td>
-            <td>--</td> <!-- Interested Count Placeholder -->
+            <td>{{ project.interested_count }}</td>
             <td>{{ project.allocated_count }} / {{ project.quota }}</td>
             <td>
               <a href="{% url 'supervisor_edit_project' project.id %}" class="btn btn-sm btn-outline-primary">

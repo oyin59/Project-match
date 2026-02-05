@@ -24,24 +24,25 @@
   <div class="card pm mb-4 p-4">
     <div class="row g-3 align-items-end">
       <div class="col-md-6">
-        <label for="projectSelect" class="form-label">Select project</label>
-        <select id="projectSelect" class="form-select">
-          <option>AI Chatbot for Customer Service</option>
-          <option>Data Visualization Dashboard</option>
-          <option>Online Learning Management System</option>
-        </select>
+        <form method="get" id="filterForm">
+          <label for="projectSelect" class="form-label">Select project</label>
+          <select id="projectSelect" name="project" class="form-select"
+            onchange="document.getElementById('filterForm').submit()">
+            <option value="">All Projects</option>
+            {% for project in projects %}
+            <option value="{{ project.id }}" {% if project.id == selected_project_id %}selected{% endif %}>
+              {{ project.title }}
+            </option>
+            {% endfor %}
+          </select>
+        </form>
       </div>
       <div class="col-md-3">
+        <!-- Sorting placeholder - not implemented yet -->
         <label for="sortRanking" class="form-label">Sort by</label>
-        <select id="sortRanking" class="form-select">
-          <option>Overall score (highest first)</option>
+        <select id="sortRanking" class="form-select" disabled>
           <option>Ranking (1st choice first)</option>
-          <option>Prerequisites met</option>
         </select>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label d-block">View</label>
-        <span class="pm-pill small">Quota: 2 students · 5 interested</span>
       </div>
     </div>
   </div>
@@ -49,119 +50,79 @@
   <!-- Interested students table -->
   <div class="card pm mb-4 p-4">
     <h5 class="card-title pm-title mb-3">
-      Students interested in: AI Chatbot for Customer Service
+      Interested Students List
     </h5>
 
     <table class="table align-middle mb-3">
       <thead>
         <tr>
           <th scope="col">Student</th>
+          <th scope="col">Project</th>
           <th scope="col">Ranking</th>
           <th scope="col">Prereqs met</th>
-          <th scope="col">Score</th>
+          <!-- <th scope="col">Score</th> -->
           <th scope="col" class="text-end">Actions</th>
         </tr>
       </thead>
       <tbody>
+        {% for pref in preferences %}
         <tr>
-          <td>John Smith</td>
-          <td>1st choice</td>
-          <td>2 / 3</td>
-          <td>85</td>
+          <td>
+            <div class="fw-bold">{{ pref.student.first_name }} {{ pref.student.last_name }}</div>
+            <div class="small text-muted">{{ pref.student.email }}</div>
+          </td>
+          <td>{{ pref.project.title }}</td>
+          <td>
+            {% if pref.rank == 1 %}1st choice
+            {% elif pref.rank == 2 %}2nd choice
+            {% elif pref.rank == 3 %}3rd choice
+            {% else %}Unranked
+            {% endif %}
+          </td>
+          <td>
+            {{ pref.match_data.0 }} / {{ pref.match_data.1 }}
+          </td>
+          <!-- <td>--</td> -->
           <td class="text-end">
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#studentProfileModal">
-              View
-            </button>
+            <!-- Placeholder for View Profile -->
+            <button class="btn btn-outline btn-sm" disabled>View Profile</button>
           </td>
         </tr>
+        {% empty %}
         <tr>
-          <td>Jane Doe</td>
-          <td>1st choice</td>
-          <td>3 / 3</td>
-          <td>95</td>
-          <td class="text-end">
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#studentProfileModal">
-              View
-            </button>
-          </td>
+          <td colspan="4" class="text-center text-muted">No students found.</td>
         </tr>
-        <tr>
-          <td>Mike Ross</td>
-          <td>2nd choice</td>
-          <td>2 / 3</td>
-          <td>70</td>
-          <td class="text-end">
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#studentProfileModal">
-              View
-            </button>
-          </td>
-        </tr>
-        <tr>
-          <td>Sarah Lee</td>
-          <td>3rd choice</td>
-          <td>1 / 3</td>
-          <td>50</td>
-          <td class="text-end">
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#studentProfileModal">
-              View
-            </button>
-          </td>
-        </tr>
-        <tr>
-          <td>Tom Brown</td>
-          <td>1st choice</td>
-          <td>2 / 3</td>
-          <td>80</td>
-          <td class="text-end">
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#studentProfileModal">
-              View
-            </button>
-          </td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
 
-    <p class="small text-secondary mb-0">
-      <strong>Total interested:</strong> 5 students ·
-      <strong>Project quota:</strong> 2 students ·
-      <strong>Currently allocated:</strong> 2 students (John Smith, Jane Doe)
-      <span class="d-block mt-1 fst-italic">
-        Note: Final allocation is handled by the admin.
-      </span>
-    </p>
+    <div class="mt-4 border-top pt-3">
+      <p class="small text-secondary mb-0">
+        <strong>Total interested:</strong> {{ summary_interested }} students<br>
+        <strong>Quota per project:</strong> {{ summary_quota }} {% if summary_quota != "Varies" %}students{% endif %}<br>
+        <strong>Total projects:</strong> {{ summary_projects_count }}<br>
+        <strong>Currently allocated:</strong>
+        {{ summary_allocated|length }} students
+        {% if summary_allocated %}
+        ({{ summary_allocated|join:", " }})
+        {% endif %}
+
+        <span class="d-block mt-1 fst-italic">
+          Note: Final allocation is handled by the admin.
+        </span>
+      </p>
+    </div>
   </div>
 
 </div>
 
 <!-- Student Profile Modal -->
-<div class="modal fade" id="studentProfileModal" tabindex="-1"
-     aria-labelledby="studentProfileLabel" aria-hidden="true">
+<div class="modal fade" id="studentProfileModal" tabindex="-1" aria-labelledby="studentProfileLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content card pm-glass">
       <div class="modal-header border-0">
         <h5 class="modal-title" id="studentProfileLabel">Student profile – John Smith</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <div class="modal-body pt-0">
