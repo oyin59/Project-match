@@ -38,4 +38,6 @@ urlpatterns = [
     path('admin-allocations/', views.admin_allocations, name='admin_allocations'),
     path('admin-manual-allocations/', views.admin_manual_allocations, name='admin_manual_allocations'),
     path('admin-export-data/', views.admin_export_data, name='admin_export_data'),
+    path('admin-student/<int:student_id>/', views.admin_student_detail, name='admin_student_detail'),
+    path('admin-project/<int:project_id>/', views.admin_project_detail, name='admin_project_detail'),
 ]

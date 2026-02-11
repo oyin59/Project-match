@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Project Details | ProjectMatch{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{% url 'admin_projects' %}" class="text-decoration-none text-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Projects
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Project Info Column -->
+        <div class="col-md-8">
+            <div class="card pm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4 class="card-title mb-0">{{ project.title }}</h4>
+                        {% if project.allocated_students.count >= project.quota %}
+                        <span class="badge bg-danger">Full</span>
+                        {% elif project.allocated_students.count > 0 %}
+                        <span class="badge bg-warning text-dark">Partially Filled</span>
+                        {% else %}
+                        <span class="badge bg-success">Open</span>
+                        {% endif %}
+                    </div>
+
+                    <h6 class="text-muted mb-3">Supervisor: {{ project.supervisor.first_name }} {{
+                        project.supervisor.last_name }}</h6>
+
+                    <hr>
+
+                    <h6 class="fw-bold">Description</h6>
+                    <p>{{ project.description }}</p>
+
+                    {% if project.prerequisites %}
+                    <h6 class="fw-bold mt-3">Prerequisites</h6>
+                    <p>{{ project.prerequisites }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Interested Students -->
+            <div class="card pm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="mb-0 fw-bold">Interested Students ({{ interested_preferences.count }})</h6>
+                </div>
+                <div class="card-body p-0">
+                    {% if interested_preferences %}
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Rank</th>
+                                <th>Profile Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pref in interested_preferences %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2"
+                                            style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                            {{ pref.student.first_name|first }}{{ pref.student.last_name|first }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-medium">{{ pref.student.first_name }} {{
+                                                pref.student.last_name }}</div>
+                                            <div class="small text-muted">{{ pref.student.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">#{{ pref.rank }}</span></td>
+                                <td>
+                                    {% if pref.student.profile.profile_status == 'SUBMITTED' %}
+                                    <span class="badge bg-success" style="font-size: 0.7rem;">Ready</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Draft</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'admin_student_detail' pref.student.id %}"
+                                        class="btn btn-sm btn-ghost">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <p class="mb-0">No students have selected this project yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Allocation Status -->
+            <div class="card pm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="mb-0 fw-bold">Allocation Status</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="small text-muted">Quota Usage</label>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar {% if project.allocated_students.count >= project.quota %}bg-danger{% else %}bg-success{% endif %}"
+                                role="progressbar"
+                                style="width: {% widthratio project.allocated_students.count project.quota 100 %}%;"
+                                aria-valuenow="{{ project.allocated_students.count }}" aria-valuemin="0"
+                                aria-valuemax="{{ project.quota }}">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span class="small">{{ project.allocated_students.count }} Allocated</span>
+                            <span class="small">{{ project.quota }} Total Spots</span>
+                        </div>
+                    </div>
+
+                    {% if allocated_students %}
+                    <h6 class="small fw-bold text-muted mb-2">Allocated Students:</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for student in allocated_students %}
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>{{ student.first_name }} {{ student.last_name }}</span>
+                            <a href="{% url 'admin_student_detail' student.id %}"
+                                class="btn btn-xs btn-outline-primary py-0" style="font-size: 0.75rem;">View</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="small text-muted mb-0">No students allocated yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

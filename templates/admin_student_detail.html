@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Student Details | ProjectMatch{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{% url 'admin_students' %}" class="text-decoration-none text-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Students
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Student Info Column -->
+        <div class="col-md-4">
+            <div class="card pm mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto"
+                            style="width: 80px; height: 80px;">
+                            <span class="fs-2 text-secondary"> {{ student.first_name|first }}{{ student.last_name|first }}</span>
+                        </div>
+                    </div>
+                    <h5 class="card-title">{{ student.first_name }} {{ student.last_name }}</h5>
+                    <p class="text-muted mb-1">{{ student.email }}</p>
+                    <p class="text-muted small">Student ID: {{ profile.student_number|default:"N/A" }}</p>
+
+                    <hr>
+
+                    <div class="text-start">
+                        <p class="mb-1"><strong>Status:</strong>
+                            {% if student.allocated_project %}
+                            <span class="badge bg-success">Allocated</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Unallocated</span>
+                            {% endif %}
+                        </p>
+                        <p class="mb-1"><strong>Profile:</strong>
+                            {% if profile.profile_status == 'SUBMITTED' %}
+                            <span class="badge bg-primary">Submitted</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Draft</span>
+                            {% endif %}
+                        </p>
+                        <p class="mb-1"><strong>Preferences:</strong>
+                            {% if student.preferences_submitted %}
+                            <span class="badge bg-info text-dark">Submitted</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Not Submitted</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Details -->
+            <div class="card pm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="mb-0 fw-bold">Academic Profile</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><small class="text-muted">Department</small></p>
+                    <p>{{ profile.department.name|default:"-" }}</p>
+
+                    <p class="mb-1"><small class="text-muted">Course</small></p>
+                    <p>{{ profile.course.name|default:"-" }}</p>
+
+                    <p class="mb-1"><small class="text-muted">Skills</small></p>
+                    <p class="small">{{ profile.skills|default:"None listed" }}</p>
+
+                    <p class="mb-1"><small class="text-muted">Research Interests</small></p>
+                    <p class="small">{{ profile.research_interests|default:"None listed" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Allocation & Preferences Column -->
+        <div class="col-md-8">
+
+            {% if student.allocated_project %}
+            <div class="card pm mb-4 border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>Allocated Project</h6>
+                </div>
+                <div class="card-body">
+                    <h5>{{ student.allocated_project.title }}</h5>
+                    <p class="text-muted mb-2">Supervisor: {{ student.allocated_project.supervisor.first_name }} {{ student.allocated_project.supervisor.last_name }}</p>
+                    <a href="{% url 'admin_project_detail' student.allocated_project.id %}"
+                        class="btn btn-sm btn-outline-success">View Project</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card pm">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">Project Preferences</h6>
+                    <span class="badge bg-secondary">{{ preferences.count }} Selected</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if preferences %}
+                    <div class="list-group list-group-flush">
+                        {% for pref in preferences %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-light text-dark border me-2">#{{ pref.rank }}</span>
+                                    <a href="{% url 'admin_project_detail' pref.project.id %}"
+                                        class="text-decoration-none fw-medium text-dark">
+                                        {{ pref.project.title }}
+                                    </a>
+                                    <div class="small text-muted mt-1">
+                                        Supervisor: {{ pref.project.supervisor.first_name }} {{ pref.project.supervisor.last_name }}
+                                    </div>
+                                </div>
+                                <!-- Actions could go here -->
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <p class="mb-0">No preferences submitted yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

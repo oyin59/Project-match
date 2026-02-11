@@ -749,3 +749,41 @@ def admin_export_data(request):
         ])
         
     return response
+
+
+def admin_student_detail(request, student_id):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+    
+    student = get_object_or_404(Student, id=student_id)
+    profile = getattr(student, 'profile', None)
+    
+    # Get preferences with project details
+    preferences = StudentPreference.objects.filter(student=student).select_related('project', 'project__supervisor').order_by('rank')
+    
+    return render(request, "admin_student_detail.html", {
+        "role": "admin",
+        "student": student,
+        "profile": profile,
+        "preferences": preferences
+    })
+
+
+def admin_project_detail(request, project_id):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+
+    project = get_object_or_404(Project, id=project_id)
+    
+    # Allocated Students
+    allocated_students = project.allocated_students.all()
+    
+    # Interested Students (Preferences)
+    interested_preferences = StudentPreference.objects.filter(project=project).select_related('student', 'student__profile').order_by('rank')
+    
+    return render(request, "admin_project_detail.html", {
+        "role": "admin",
+        "project": project,
+        "allocated_students": allocated_students,
+        "interested_preferences": interested_preferences
+    })

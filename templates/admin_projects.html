@@ -78,7 +78,7 @@
           </td>
           <td class="text-end">
             <!-- No detail view yet, so static button or correct link later -->
-            <button class="btn btn-ghost btn-sm" >View</button>
+            <a href="{% url 'admin_project_detail' project.id %}" class="btn btn-ghost btn-sm">View</a>
           </td>
         </tr>
         {% empty %}
