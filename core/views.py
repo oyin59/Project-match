@@ -586,24 +586,166 @@ def supervisor_interested_students(request):
 
 
 def admin_dashboard(request):
-    return render(request, "admin_dashboard.html", {"role": "admin"})
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+    admin_id = request.session.get("user_id")
+    admin = get_object_or_404(Admin, id=admin_id)
+    total_students = Student.objects.count()
+    total_projects = Project.objects.count()
+    total_supervisors = Supervisor.objects.count()
+    total_allocations = Student.objects.filter(allocated_project__isnull=False).count()
+    total_unallocated = Student.objects.filter(allocated_project__isnull=True).count()
+    total_allocations_percentage = (total_allocations / total_students) * 100
+    total_preferences_submitted = Student.objects.filter(preferences_submitted=True).count()
+    total_projects_added = Project.objects.count()
+    return render(request, "admin_dashboard.html", {"role": "admin",
+    "total_students": total_students,
+    "total_projects": total_projects,
+    "total_supervisors": total_supervisors,
+    "total_allocations": total_allocations,
+    "total_unallocated": total_unallocated,
+    "total_allocations_percentage": total_allocations_percentage,
+    "total_preferences_submitted": total_preferences_submitted,
+    "total_projects_added": total_projects_added
+    })
 
 
 def admin_students(request):
-    return render(request, "admin_students.html", {"role": "admin"})
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+    students = Student.objects.select_related('allocated_project', 'profile').prefetch_related('preferences__project').all().order_by('last_name')
+    query = request.GET.get('q','').strip()
+    if query:
+        from django.db.models.functions import Q
+        students = students.filter(
+            Q(first_name__icontains=query) | 
+            Q(last_name__icontains=query)
+            )
+    status_filter = request.GET.get('status','All students')
+    if status_filter == 'Allocated':
+        students = students.filter(allocated_project__isnull=False)
+    elif status_filter == 'Unallocated':
+        students = students.filter(allocated_project__isnull=True)
+    elif status_filter == 'No preferences':
+        students = students.filter(preferences_submitted=False)
+
+    for student in students:
+        # Access preferences via the prefetched RELATIONSHIP on the INSTANCE
+        # Because of prefetch_related('preferences__project'), this doesn't hit DB again
+        prefs = list(student.preferences.all()) 
+        prefs.sort(key=lambda x: x.rank)
+        
+        # Assign attributes to the INSTANCE, not the Class
+        student.pref_1 = prefs[0].project.title if len(prefs) > 0 else "-"
+        student.pref_2 = prefs[1].project.title if len(prefs) > 1 else "-"
+        student.pref_3 = prefs[2].project.title if len(prefs) > 2 else "-"
+
+    return render(request, "admin_students.html", {
+        "role": "admin",
+        "students": students,
+        "search_query": query,
+        "current_filter": status_filter,
+        })
 
 
 def admin_projects(request):
-    return render(request, "admin_projects.html", {"role": "admin"})
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+    projects = Project.objects.select_related('supervisor').annotate(
+        allocated_count=Count('allocated_students'),
+        interested_count=Count('studentpreference')
+    ).order_by('title')
+    query = request.GET.get('q','').strip()
+    if query:
+        projects = projects.filter(title__icontains=query)
+    supervisor_filter = request.GET.get('supervisor','All supervisors')
+    if supervisor_filter != 'All supervisors':
+        if supervisor_filter.isdigit():
+            projects = projects.filter(supervisor__id=int(supervisor_filter))
+        else:
+            projects = projects.filter(
+                Q(supervisor__first_name__icontains=supervisor_filter) |
+                Q(supervisor__last_name__icontains=supervisor_filter)
+            )
+    status_filter = request.GET.get('status','All status')
+
+    from django.db.models import F
+
+    if status_filter == 'Fully filled':
+        projects = projects.filter(allocated_count__gte=F('quota'))
+    elif status_filter == 'Partially filled':
+        projects = projects.filter(allocated_count__gt=0, allocated_count__lt=F('quota'))
+    elif status_filter == 'Spaces available':
+        projects = projects.filter(allocated_count__lt=F('quota'))
+
+    total_count = projects.count()
+
+    for project in projects:
+        if project.allocated_count >= project.quota:
+            project.status = 'Fully filled'
+            project.status_class = 'danger'
+        elif project.allocated_count > 0:
+            project.status = 'Partially filled'
+            project.status_class = 'warning'
+        else:
+            project.status = 'Spaces available'
+            project.status_class = 'success'
+
+    all_supervisors = Supervisor.objects.all().order_by('last_name')
+    return render(request, "admin_projects.html", {
+        "role": "admin",
+        "projects": projects,
+        "all_supervisors": all_supervisors,
+        "search_query": query,
+        "current_supervisor": supervisor_filter,
+        "current_status": status_filter,
+        "total_count": total_count,
+        })
 
 
 def admin_supervisors(request):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
     return render(request, "admin_supervisors.html", {"role": "admin"})
 
 
 def admin_allocations(request):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
     return render(request, "admin_allocations.html", {"role": "admin"})
 
 
 def admin_manual_allocations(request):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
     return render(request, "admin_manual_allocations.html", {"role": "admin"})
+
+
+def admin_export_data(request):
+    import csv 
+    from django.http import HttpResponse
+    
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="allocation_data.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Student Name', 'Student Email', 'Allocated Project', 'Supervisor', 'Preferences Submitted'])
+    
+    students = Student.objects.select_related('allocated_project', 'allocated_project__supervisor').all()
+    
+    for student in students:
+        project_title = student.allocated_project.title if student.allocated_project else "Unallocated"
+        supervisor_name = str(student.allocated_project.supervisor) if student.allocated_project else "-"
+        
+        writer.writerow([
+            str(student),
+            student.email,
+            project_title,
+            supervisor_name,
+            "Yes" if student.preferences_submitted else "No"
+        ])
+        
+    return response

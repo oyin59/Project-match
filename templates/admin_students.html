@@ -8,28 +8,33 @@
 
   <!-- Search + Filter -->
   <div class="d-flex justify-content-center mb-4">
-    <div class="d-flex gap-3 flex-wrap justify-content-center align-items-center"
-         style="max-width: 900px; width: 100%;">
+    <form method="get" class="d-flex gap-3 flex-wrap justify-content-center align-items-center"
+      style="max-width: 900px; width: 100%;">
 
       <!-- Search Bar -->
       <div class="flex-grow-1" style="max-width: 350px;">
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" class="form-control" placeholder="Search students...">
+          <input type="text" name="q" class="form-control" placeholder="Search students..." value="{{ search_query }}">
         </div>
       </div>
 
       <!-- Filter Dropdown -->
       <div>
-        <select class="form-select form-select-sm" style="width: 150px;">
-          <option selected>All students</option>
-          <option>Allocated</option>
-          <option>Unallocated</option>
-          <option>No preferences</option>
+        <select name="status" class="form-select form-select-sm" style="width: 150px;" onchange="this.form.submit()">
+          <option value="All students" {% if current_filter == 'All students' %}selected{% endif %}>All students</option>
+          <option value="Allocated" {% if current_filter == 'Allocated' %}selected{% endif %}>Allocated</option>
+          <option value="Unallocated" {% if current_filter == 'Unallocated' %}selected{% endif %}>Unallocated</option>
+          <option value="No preferences" {% if current_filter == 'No preferences' %}selected{% endif %}>No preferences
+          </option>
         </select>
       </div>
 
-    </div>
+      {% if search_query or current_filter != 'All students' %}
+      <a href="{% url 'admin_students' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      {% endif %}
+
+    </form>
   </div>
 
   <!-- Students Table -->
@@ -48,49 +53,43 @@
         </tr>
       </thead>
       <tbody>
+        {% for student in students %}
         <tr>
-          <td>Jane Doe</td>
-          <td>12345</td>
-          <td>✔</td>
-          <td>AI Chatbot</td>
-          <td>ML Dashboard</td>
-          <td>Data Mining Tool</td>
-          <td>AI Chatbot</td>
+          <td>{{ student.first_name }} {{ student.last_name }} <br><small class="text-muted">{{ student.email }}</small>
+          </td>
+          <td>{{ student.id }}</td>
+          <td>
+            {% if student.preferences_submitted %}
+            <span class="text-success fw-bold">✔</span>
+            {% else %}
+            <span class="text-secondary">✖</span>
+            {% endif %}
+          </td>
+          <td><small>{{ student.pref_1 }}</small></td>
+          <td><small>{{ student.pref_2 }}</small></td>
+          <td><small>{{ student.pref_3 }}</small></td>
+          <td>
+            {% if student.allocated_project %}
+            <span class="badge bg-success" title="{{ student.allocated_project.title }}">Allocated</span>
+            {% else %}
+            <span class="badge bg-secondary">Unallocated</span>
+            {% endif %}
+          </td>
           <td class="text-end">
+            <!-- Placeholder for detailed view if needed, or link to profile -->
             <button class="btn btn-ghost btn-sm">View</button>
           </td>
         </tr>
-
+        {% empty %}
         <tr>
-          <td>Tom Brown</td>
-          <td>12346</td>
-          <td>✔</td>
-          <td>E-commerce Site</td>
-          <td>AI Chatbot</td>
-          <td>—</td>
-          <td>Unallocated</td>
-          <td class="text-end">
-            <button class="btn btn-ghost btn-sm">View</button>
-          </td>
+          <td colspan="8" class="text-center py-4 text-muted">No students found matching your criteria.</td>
         </tr>
-
-        <tr>
-          <td>Mia Johnson</td>
-          <td>12347</td>
-          <td>✖</td>
-          <td>—</td>
-          <td>—</td>
-          <td>—</td>
-          <td>Unallocated</td>
-          <td class="text-end">
-            <button class="btn btn-ghost btn-sm">View</button>
-          </td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
 
     <p class="small text-secondary mt-3 mb-0 text-center">
-      Showing 15 of 15 students
+      Showing {{ students.count }} of {{ students.count }} students
     </p>
   </div>
 </div>

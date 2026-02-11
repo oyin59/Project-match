@@ -35,6 +35,7 @@ urlpatterns = [
     path("admin-students/", views.admin_students, name="admin_students"),
     path("admin-projects/", views.admin_projects, name="admin_projects"),
     path("admin-supervisors/", views.admin_supervisors, name="admin_supervisors"),
-    path("admin-allocations/", views.admin_allocations, name="admin_allocations"),
-    path("admin-manual-allocations/", views.admin_manual_allocations, name="admin_manual_allocations"),
+    path('admin-allocations/', views.admin_allocations, name='admin_allocations'),
+    path('admin-manual-allocations/', views.admin_manual_allocations, name='admin_manual_allocations'),
+    path('admin-export-data/', views.admin_export_data, name='admin_export_data'),
 ]

@@ -8,39 +8,47 @@
 
   <!-- Search + Filters -->
   <div class="d-flex justify-content-center mb-4">
-    <div class="d-flex gap-3 flex-wrap justify-content-center align-items-center"
-         style="max-width: 950px; width: 100%;">
+    <form method="get" class="d-flex gap-3 flex-wrap justify-content-center align-items-center"
+      style="max-width: 950px; width: 100%;">
 
       <!-- Search -->
       <div class="flex-grow-1" style="max-width: 380px;">
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" class="form-control" placeholder="Search projects...">
+          <input type="text" name="q" class="form-control" placeholder="Search projects..." value="{{ search_query }}">
         </div>
       </div>
 
       <!-- Filter: Supervisor -->
       <div>
-        <select class="form-select form-select-sm" style="width: 180px;">
-          <option selected>All supervisors</option>
-          <option>Dr. Sarah Smith</option>
-          <option>Prof. James Jones</option>
-          <option>Dr. Anita Patel</option>
-          <option>Dr. Michael Carter</option>
+        <select name="supervisor" class="form-select form-select-sm" style="width: 180px;"
+          onchange="this.form.submit()">
+          <option value="All supervisors">All supervisors</option>
+          {% for sup in all_supervisors %}
+          <option value="{{ sup.id }}" {% if current_supervisor == sup.id|stringformat:"s" %}selected{% endif %}>
+            {{ sup.first_name }} {{ sup.last_name }}
+          </option>
+          {% endfor %}
         </select>
       </div>
 
       <!-- Filter: Status -->
       <div>
-        <select class="form-select form-select-sm" style="width: 160px;">
-          <option selected>All status</option>
-          <option>Fully filled</option>
-          <option>Partially filled</option>
-          <option>Spaces available</option>
+        <select name="status" class="form-select form-select-sm" style="width: 160px;" onchange="this.form.submit()">
+          <option value="All status" {% if current_status == 'All status' %}selected{% endif %}>All status</option>
+          <option value="Fully filled" {% if current_status == 'Fully filled' %}selected{% endif %}>Fully filled</option>
+          <option value="Partially filled" {% if current_status == 'Partially filled' %}selected{% endif %}>Partially
+            filled</option>
+          <option value="Spaces available" {% if current_status == 'Spaces available' %}selected{% endif %}>Spaces
+            available</option>
         </select>
       </div>
 
-    </div>
+      {% if search_query or current_supervisor != 'All supervisors' or current_status != 'All status' %}
+      <a href="{% url 'admin_projects' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      {% endif %}
+
+    </form>
   </div>
 
   <!-- Projects table -->
@@ -58,83 +66,31 @@
         </tr>
       </thead>
       <tbody>
+        {% for project in projects %}
         <tr>
-          <td>AI Chatbot for Customer Service</td>
-          <td>Dr. Sarah Smith</td>
-          <td>2</td>
-          <td>5</td>
-          <td>2</td>
-          <td>Fully filled</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+          <td>{{ project.title }}</td>
+          <td>{{ project.supervisor.first_name }} {{ project.supervisor.last_name }}</td>
+          <td>{{ project.quota }}</td>
+          <td>{{ project.interested_count }}</td>
+          <td>{{ project.allocated_count }}</td>
+          <td>
+            <span class="badge bg-{{ project.status_class }}">{{ project.status }}</span>
+          </td>
+          <td class="text-end">
+            <!-- No detail view yet, so static button or correct link later -->
+            <button class="btn btn-ghost btn-sm" >View</button>
+          </td>
         </tr>
+        {% empty %}
         <tr>
-          <td>Data Visualization Dashboard</td>
-          <td>Prof. James Jones</td>
-          <td>3</td>
-          <td>3</td>
-          <td>1</td>
-          <td>Spaces available</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+          <td colspan="7" class="text-center py-4 text-muted">No projects found.</td>
         </tr>
-        <tr>
-          <td>Online Learning Management System</td>
-          <td>Dr. Sarah Smith</td>
-          <td>3</td>
-          <td>7</td>
-          <td>2</td>
-          <td>Partially filled</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>Machine Learning Dashboard</td>
-          <td>Dr. Anita Patel</td>
-          <td>2</td>
-          <td>4</td>
-          <td>1</td>
-          <td>Spaces available</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>Data Mining &amp; Analytics Tool</td>
-          <td>Dr. Michael Carter</td>
-          <td>2</td>
-          <td>3</td>
-          <td>2</td>
-          <td>Fully filled</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>Smart Campus Mobile App</td>
-          <td>Prof. James Jones</td>
-          <td>2</td>
-          <td>2</td>
-          <td>1</td>
-          <td>Spaces available</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>IoT Sensor Network Monitoring</td>
-          <td>Dr. Anita Patel</td>
-          <td>1</td>
-          <td>3</td>
-          <td>1</td>
-          <td>Fully filled</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>Recommender System for Study Resources</td>
-          <td>Dr. Michael Carter</td>
-          <td>2</td>
-          <td>2</td>
-          <td>0</td>
-          <td>Spaces available</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
 
     <p class="small text-secondary mt-3 mb-0 text-center">
-      Total: 8 projects · Fully filled: 3 · Spaces left: 8
+      Total: {{ total_count }} projects
     </p>
   </div>
 </div>

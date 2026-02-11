@@ -13,7 +13,7 @@
         <div class="card pm h-100">
           <div class="card-body">
             <small class="text-secondary d-block mb-1">Total students</small>
-            <div class="fs-3 fw-semibold">15</div>
+            <div class="fs-3 fw-semibold">{{total_students}}</div>
           </div>
         </div>
       </div>
@@ -21,7 +21,7 @@
         <div class="card pm h-100">
           <div class="card-body">
             <small class="text-secondary d-block mb-1">Total projects</small>
-            <div class="fs-3 fw-semibold">12</div>
+            <div class="fs-3 fw-semibold">{{total_projects}}</div>
           </div>
         </div>
       </div>
@@ -29,7 +29,7 @@
         <div class="card pm h-100">
           <div class="card-body">
             <small class="text-secondary d-block mb-1">Total supervisors</small>
-            <div class="fs-3 fw-semibold">5</div>
+            <div class="fs-3 fw-semibold">{{total_supervisors}}</div>
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@
         <div class="card pm h-100">
           <div class="card-body">
             <small class="text-secondary d-block mb-1">Students allocated</small>
-            <div class="fs-3 fw-semibold">12 / 15</div>
+            <div class="fs-3 fw-semibold">{{total_allocations}} / {{total_students}}</div>
           </div>
         </div>
       </div>
@@ -48,23 +48,18 @@
   <div class="mb-2 fw-semibold text-secondary">Allocation status</div>
   <div class="card pm p-4 mb-4">
     <div class="progress mb-2" style="height: 12px;">
-      <div
-        class="progress-bar"
-        role="progressbar"
-        style="width: 80%; background-color: var(--pm-purple);"
-        aria-valuenow="80"
-        aria-valuemin="0"
-        aria-valuemax="100">
+      <div class="progress-bar" role="progressbar" style="width: 80%; background-color: var(--pm-purple);"
+        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
       </div>
     </div>
-    <div class="text-end small text-secondary">80% complete</div>
+    <div class="text-end small text-secondary">{{total_allocations_percentage}}% complete</div>
 
     <ul class="small text-secondary mt-3 mb-0">
-      <li>12 students allocated</li>
-      <li>3 students unallocated</li>
-      <li>12 projects total</li>
-      <li>9 projects filled</li>
-      <li>3 projects with spaces available</li>
+      <li>{{total_allocations}}students allocated</li>
+      <li>{{total_unallocated}} students unallocated</li>
+      <li>{{total_projects}} projects total</li>
+      <li>{{total_filled_projects}} projects filled</li>
+      <li>{{total_available_projects}} projects with spaces available</li>
     </ul>
   </div>
 
@@ -72,10 +67,10 @@
   <div class="mb-2 fw-semibold text-secondary">Quick actions</div>
   <div class="card pm p-3 mb-4">
     <div class="d-flex flex-wrap gap-2">
-      <a href="#" class="btn btn-gradient">Run allocation algorithm</a>
-      <a href="#" class="btn btn-ghost">View allocation results</a>
-      <a href="#" class="btn btn-ghost">Manual allocation</a>
-      <a href="#" class="btn btn-ghost">Export data</a>
+      <a href="{% url 'admin_allocations' %}" class="btn btn-gradient">Run allocation algorithm</a>
+      <a href="{% url 'admin_allocations' %}" class="btn btn-ghost">View allocation results</a>
+      <a href="{%url 'admin_manual_allocations'%}" class="btn btn-ghost">Manual allocation</a>
+      <a href="{% url 'admin_export_data' %}" class="btn btn-ghost">Export data</a>
     </div>
   </div>
 
@@ -83,9 +78,9 @@
   <div class="mb-2 fw-semibold text-secondary">Recent activity</div>
   <div class="card pm p-4">
     <ul class="mb-0 small text-secondary">
-      <li>2 new student preferences submitted</li>
-      <li>1 new project added by Dr. Carter</li>
-      <li>Allocation run completed (1 hour ago)</li>
+      <li>{{total_preferences_submitted}} student preferences submitted</li>
+      <li>{{total_projects_added}} new project added by supervisors</li>
+      <li>{{total_allocations}} Allocation run completed</li>
     </ul>
   </div>
 </div>
