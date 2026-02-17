@@ -25,8 +25,7 @@
                         {% endif %}
                     </div>
 
-                    <h6 class="text-muted mb-3">Supervisor: {{ project.supervisor.first_name }} {{
-                        project.supervisor.last_name }}</h6>
+                    <h6 class="text-muted mb-3">Supervisor: {{ project.supervisor.first_name }} {{ project.supervisor.last_name }}</h6>
 
                     <hr>
 
@@ -66,8 +65,7 @@
                                             {{ pref.student.first_name|first }}{{ pref.student.last_name|first }}
                                         </div>
                                         <div>
-                                            <div class="fw-medium">{{ pref.student.first_name }} {{
-                                                pref.student.last_name }}</div>
+                                            <div class="fw-medium">{{ pref.student.first_name }} {{ pref.student.last_name }}</div>
                                             <div class="small text-muted">{{ pref.student.email }}</div>
                                         </div>
                                     </div>
@@ -109,8 +107,7 @@
                         <label class="small text-muted">Quota Usage</label>
                         <div class="progress" style="height: 10px;">
                             <div class="progress-bar {% if project.allocated_students.count >= project.quota %}bg-danger{% else %}bg-success{% endif %}"
-                                role="progressbar"
-                                style="width: {% widthratio project.allocated_students.count project.quota 100 %}%;"
+                                role="progressbar" style="width: {{ allocation_percentage }}%;"
                                 aria-valuenow="{{ project.allocated_students.count }}" aria-valuemin="0"
                                 aria-valuemax="{{ project.quota }}">
                             </div>
