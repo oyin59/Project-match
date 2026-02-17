@@ -9,7 +9,7 @@
   <!-- Search + Filters -->
   <div class="d-flex justify-content-center mb-4">
     <div class="d-flex gap-3 flex-wrap justify-content-center align-items-center"
-         style="max-width: 950px; width: 100%;">
+      style="max-width: 950px; width: 100%;">
 
       <!-- Search -->
       <div class="flex-grow-1" style="max-width: 380px;">
@@ -52,61 +52,29 @@
           <th scope="col">Projects</th>
           <th scope="col">Students interested</th>
           <th scope="col">Quota</th>
-          <th scope="col">Allocated</th>
-          <th scope="col" class="text-end"></th>
+          <th scope="col">Allocated / Quota</th>
+          <th scope="col">Load</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
+        {% for supervisor in supervisors %}
         <tr>
-          <td>Dr. Sarah Smith</td>
-          <td>Computer Science</td>
-          <td>3</td>
-          <td>15</td>
-          <td>8</td>
-          <td>5</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
+          <td>{{ supervisor.first_name }} {{ supervisor.last_name }}</td>
+          <td>{{ supervisor.department }}</td>
+          <td>{{ supervisor.total_projects_count }}</td>
+          <td>{{ supervisor.total_interested }}</td>
+          <td>{{ supervisor.total_quota }}</td>
+          <td>{{ supervisor.total_allocated }} / {{ supervisor.total_quota }}</td>
+          <td><progress value="{{ supervisor.load_percentage }}" max="100"></progress><span>{{ supervisor.load_percentage|floatformat:0 }}%</span></td>
+          <td><a href="">View</a></td>
         </tr>
-        <tr>
-          <td>Prof. James Jones</td>
-          <td>Computer Science</td>
-          <td>2</td>
-          <td>7</td>
-          <td>5</td>
-          <td>2</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>Dr. Anita Patel</td>
-          <td>Data Science</td>
-          <td>2</td>
-          <td>6</td>
-          <td>3</td>
-          <td>2</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>Dr. Michael Carter</td>
-          <td>Data Science</td>
-          <td>2</td>
-          <td>5</td>
-          <td>3</td>
-          <td>2</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
-        <tr>
-          <td>Dr. Laura Green</td>
-          <td>Cybersecurity</td>
-          <td>1</td>
-          <td>3</td>
-          <td>2</td>
-          <td>1</td>
-          <td class="text-end"><button class="btn btn-ghost btn-sm">View</button></td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
 
     <p class="small text-secondary mt-3 mb-0 text-center">
-      Total: 5 supervisors · Projects: 10 · Spaces left: 8
+      Total: {{ total_supervisors_count }} supervisors · Projects: {{ total_projects_count }} · Spaces left: {{ total_spaces_left }}
     </p>
   </div>
 </div>

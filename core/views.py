@@ -7,7 +7,8 @@ from .models import (
     StudentProfileDetails, StudentModule, Module, Course,
     StudentPreference
 )
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, F
+from django.db.models.functions import Coalesce
 from .forms import StudentProfileForm
 
 
@@ -70,6 +71,8 @@ def student_dashboard(request):
      
     student = None
     allocated_project = None
+    pref_count = 0
+    preferences_submitted = False
 
     if request.session.get("user_role") == "student":
         student_id = request.session.get("user_id")
@@ -669,7 +672,7 @@ def admin_projects(request):
             )
     status_filter = request.GET.get('status','All status')
 
-    from django.db.models import F
+   
 
     if status_filter == 'Fully filled':
         projects = projects.filter(allocated_count__gte=F('quota'))
@@ -706,13 +709,132 @@ def admin_projects(request):
 def admin_supervisors(request):
     if request.session.get("user_role") != "admin":
         return redirect("home")
-    return render(request, "admin_supervisors.html", {"role": "admin"})
+    from django.db.models import OuterRef, Subquery, Sum
+    from django.db.models.functions import Coalesce
+
+    project_quota = Project.objects.filter(
+        supervisor=OuterRef('pk')
+    ).values('supervisor').annotate(
+        total=Sum('quota')
+    ).values('total')
+
+    supervisors = Supervisor.objects.annotate(
+        total_projects=Count('projects', distinct=True),
+        total_allocated=Count('projects__allocated_students', distinct=True),
+        total_interested=Count('projects__studentpreference__student', distinct=True),
+        total_quota=Coalesce(Subquery(project_quota), 0)
+    )
+
+    # Calculate totals for the footer
+    total_supervisors = 0
+    total_projects = 0
+    total_spaces_left = 0
+    
+    # Iterate to calculate load/status AND aggregate totals
+    # We must do this before filtering if we want global totals, OR after if we want filtered totals.
+    # The user's template implies they want totals for the displayed list.
+    
+    processed_supervisors = []
+    
+    for supervisor in supervisors:
+        if supervisor.total_quota > 0:
+            supervisor.load_percentage = (supervisor.total_allocated / supervisor.total_quota) * 100
+        else:
+            supervisor.load_percentage = 0
+
+        if supervisor.total_allocated >= supervisor.total_quota and supervisor.total_quota > 0:
+            supervisor.load_status = "Fully allocated"
+            supervisor.load_class = "danger"
+        elif supervisor.total_allocated > 0 and supervisor.total_quota > 0:
+            supervisor.load_status = "Partially allocated"
+            supervisor.load_class = "warning"
+        else:
+            supervisor.load_status = "Empty quota"
+            supervisor.load_class = "success"    
+        
+        processed_supervisors.append(supervisor)
+
+    # Apply Filters (in memory, since we have calculated fields)
+    query = request.GET.get('q','').strip()
+    if query:
+        processed_supervisors = [
+            s for s in processed_supervisors 
+            if query.lower() in s.first_name.lower() or 
+               query.lower() in s.last_name.lower() or 
+               query.lower() in s.email.lower()
+        ]
+    
+    load_filter = request.GET.get('load','').strip()
+    if load_filter and load_filter != "All load levels":
+        processed_supervisors = [s for s in processed_supervisors if s.load_status == load_filter]
+
+    # Calculate Totals from the FINAL list
+    total_supervisors = len(processed_supervisors)
+    for s in processed_supervisors:
+        total_projects += s.total_projects
+        # Spaces left = Quota - Allocated (ensure non-negative)
+        spaces = s.total_quota - s.total_allocated
+        total_spaces_left += spaces if spaces > 0 else 0
+
+    return render(request, "admin_supervisors.html", {
+        "role": "admin",
+        "supervisors": processed_supervisors,
+        "search_query": query,
+        "current_filter": load_filter,
+        "total_supervisors_count": total_supervisors,
+        "total_projects_count": total_projects,
+        "total_spaces_left": total_spaces_left
+    })
 
 
 def admin_allocations(request):
     if request.session.get("user_role") != "admin":
         return redirect("home")
-    return render(request, "admin_allocations.html", {"role": "admin"})
+    if request.method == "POST":
+        weight_preference = request.POST.get("weight_preference", 70)
+        weight_academic = request.POST.get("weight_academic", 30)
+        
+        # logic to run algorithm will go here
+        # for now, just flash message
+        if "run_algo" in request.POST:
+             messages.success(request, f"Allocation algorithm started with weights: Pref={weight_preference}%, Grade={weight_academic}% (Logic coming soon)")
+             return redirect("admin_allocations")
+
+    total_students = Student.objects.count()
+    allocated_count = Student.objects.filter(allocated_project__isnull=False).count()
+    unallocated_count = total_students - allocated_count
+
+    if total_students > 0:
+        allocation_percentage = (allocated_count / total_students) * 100
+    else:
+        allocation_percentage = 0
+    
+    total_capacity = Project.objects.aggregate(total_capacity=Sum('quota'))['total_capacity'] or 0
+    total_spaces_filled = allocated_count
+    total_spaces_available = total_capacity - total_spaces_filled
+
+    from django.db.models import Count, Q, F
+    stats = StudentPreference.objects.filter(
+        project=F('student__allocated_project')
+    ).aggregate(
+        first_choices=Count('student', filter=Q(rank=1)),
+        second_choices=Count('student', filter=Q(rank=2)),
+        third_choices=Count('student', filter=Q(rank=3)),
+    )
+    unallocated_students = Student.objects.filter(allocated_project__isnull=True).order_by('last_name')
+
+    return render(request, "admin_allocations.html", {
+        "role": "admin",
+        "total_students": total_students,
+        "total_allocated": allocated_count,
+        "total_unallocated": unallocated_count,
+        "allocation_percentage": allocation_percentage,
+        "total_capacity": total_capacity,
+        "total_spaces_filled": total_spaces_filled,
+        "total_spaces_available": total_spaces_available,
+        "stats": stats,
+        "unallocated_students": unallocated_students
+    })
 
 
 def admin_manual_allocations(request):
@@ -781,9 +903,16 @@ def admin_project_detail(request, project_id):
     # Interested Students (Preferences)
     interested_preferences = StudentPreference.objects.filter(project=project).select_related('student', 'student__profile').order_by('rank')
     
+    # Calculate allocation percentage for progress bar
+    allocation_percentage = 0
+    if project.quota > 0:
+        count = allocated_students.count()
+        allocation_percentage = int((count / project.quota) * 100)
+
     return render(request, "admin_project_detail.html", {
         "role": "admin",
         "project": project,
         "allocated_students": allocated_students,
-        "interested_preferences": interested_preferences
+        "interested_preferences": interested_preferences,
+        "allocation_percentage": allocation_percentage
     })
