@@ -19,24 +19,21 @@
       <div>
         <h5 class="mb-1">Overall allocation status</h5>
         <p class="mb-1 text-secondary small">
-          12 of 15 students allocated · 3 students still unallocated · 12 projects total
+          {{ total_allocated }} of {{ total_students }} students allocated · {{ total_unallocated }} students still
+          unallocated · {{ total_capacity }} spaces total
         </p>
         <p class="mb-0 text-secondary small">
-          9 projects filled · 3 projects with spaces available
+          {{ total_spaces_filled }} spaces filled · {{ total_spaces_available }} spaces available
         </p>
       </div>
       <div class="w-100 w-md-50 mt-2 mt-md-0">
         <div class="progress" style="height: 12px;">
-          <div
-            class="progress-bar"
-            role="progressbar"
-            style="width: 80%; background-color: var(--pm-purple);"
-            aria-valuenow="80"
-            aria-valuemin="0"
-            aria-valuemax="100">
+          <div class="progress-bar" role="progressbar"
+            style="width: {{ allocation_percentage| floatformat:0 }}%; background-color: var(--pm-purple);"
+            aria-valuenow="{{ allocation_percentage| floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
           </div>
         </div>
-        <p class="small text-secondary mt-1 mb-0 text-end">80% complete</p>
+        <p class="small text-secondary mt-1 mb-0 text-end">{{ allocation_percentage| floatformat:0 }}% complete</p>
       </div>
     </div>
   </div>
@@ -45,125 +42,175 @@
   <div class="card pm mb-4 p-4">
     <h5 class="mb-3 pm-title">Allocation settings</h5>
 
-    <div class="mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <label class="mb-0 fw-semibold">Preference weight</label>
-        <span class="small text-secondary">50%</span>
-      </div>
-      <input type="range" class="form-range" min="0" max="100" value="50" disabled>
-    </div>
+    <!-- Allocation Settings -->
+    <div class="card pm mb-4 p-4">
+      <h5 class="mb-3 pm-title">Allocation settings</h5>
 
-    <div class="mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <label class="mb-0 fw-semibold">Qualification weight</label>
-        <span class="small text-secondary">50%</span>
-      </div>
-      <input type="range" class="form-range" min="0" max="100" value="50" disabled>
-    </div>
+      <form method="POST" action="{% url 'admin_allocations' %}">
+        {% csrf_token %}
 
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="checkbox" value="" id="defaultWeights" checked disabled>
-      <label class="form-check-label small text-secondary" for="defaultWeights">
-        Use default settings (50 / 50 split)
-      </label>
-    </div>
-
-    <div class="alert alert-warning mb-3 small">
-      <strong>Warning:</strong> Running the allocation algorithm will override any existing
-      manual allocations. This action cannot be undone.
-    </div>
-
-    <div class="text-center">
-      <button type="button" class="btn btn-gradient px-4">
-        Run allocation algorithm
-      </button>
-    </div>
-  </div>
-
-  <!-- Results + Unallocated Students -->
-  <div class="row g-4 mb-4">
-    <!-- Allocation Complete Summary -->
-    <div class="col-md-6">
-      <div class="card pm h-100 p-3">
-        <h6 class="fw-semibold mb-2 pm-title">Allocation summary (sample)</h6>
-        <ul class="small mb-0 text-secondary">
-          <li>1st choice: 8 students (53%)</li>
-          <li>2nd choice: 3 students (20%)</li>
-          <li>3rd choice: 1 student (7%)</li>
-          <li>Unallocated: 3 students (20%)</li>
-          <li class="mt-2">Total allocated: 12 / 15 students</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Unallocated Students -->
-    <div class="col-md-6">
-      <div class="card pm h-100 p-3">
-        <h6 class="fw-semibold mb-2 pm-title">Unallocated students</h6>
-        <ul class="small mb-0 text-secondary">
-          <li>Tom Wilson (S12349)</li>
-          <li>Liam Brown (S12357)</li>
-          <li>Mia Johnson (S12358)</li>
-        </ul>
-        <p class="small text-secondary mt-2 mb-0">
-          These students either did not meet prerequisites for any project or
-          could not be placed under current capacity limits.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom Actions -->
-  <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-    <button type="button" class="btn btn-ghost btn-sm">
-      View detailed results
-    </button>
-    <button type="button" class="btn btn-ghost btn-sm">
-      Download report
-    </button>
-
-    <!-- Notify Students: opens modal -->
-    <button type="button"
-            class="btn btn-ghost btn-sm"
-            data-bs-toggle="modal"
-            data-bs-target="#notifyStudentsModal">
-      Notify students
-    </button>
-
-    <!-- Link to manual allocation page -->
-    <a href="{% url 'admin_manual_allocations' %}" class="btn btn-ghost btn-sm">
-      Go to manual allocation
-    </a>
-  </div>
-
-  <!-- Notify Students Modal -->
-  <div class="modal fade" id="notifyStudentsModal" tabindex="-1"
-       aria-labelledby="notifyStudentsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content card pm">
-        <div class="modal-header border-0">
-          <h5 class="modal-title" id="notifyStudentsLabel">Notify students</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"
-                  aria-label="Close"></button>
+        <!-- Preference Weight Slider -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="mb-0 fw-semibold">Preference weight</label>
+            <span class="small text-secondary" id="prefWeightVal">70%</span>
+          </div>
+          <input type="range" class="form-range" min="0" max="100" value="70" name="weight_preference"
+            id="prefWeightSlider" oninput="updateSliders('pref')">
         </div>
 
-        <div class="modal-body">
+        <!-- Qualification Weight Slider -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="mb-0 fw-semibold">Qualification weight</label>
+            <span class="small text-secondary" id="qualWeightVal">30%</span>
+          </div>
+          <input type="range" class="form-range" min="0" max="100" value="30" name="weight_academic"
+            id="qualWeightSlider" oninput="updateSliders('qual')">
+        </div>
 
-          <p class="small text-secondary">
-            This is a static preview for the UI. In the final system, this dialog would email all
-            students with their allocation outcome (or notify them that they are still unallocated).
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="defaultWeights" onchange="toggleDefaults()">
+          <label class="form-check-label small text-secondary" for="defaultWeights">
+            Use default settings (70 / 30 split)
+          </label>
+        </div>
+
+        <div class="alert alert-warning mb-3 small">
+          <strong>Note:</strong> Running the allocation algorithm will <strong>only fill gaps</strong>.
+          It will NOT override existing manual allocations.
+        </div>
+
+        <div class="text-center">
+          <button type="submit" name="run_algo" class="btn btn-gradient px-4">
+            Run allocation algorithm
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      function updateSliders(source) {
+        const prefSlider = document.getElementById('prefWeightSlider');
+        const qualSlider = document.getElementById('qualWeightSlider');
+        const prefVal = document.getElementById('prefWeightVal');
+        const qualVal = document.getElementById('qualWeightVal');
+        const checkbox = document.getElementById('defaultWeights');
+
+        // Uncheck default if user moves slider
+        if (checkbox.checked) checkbox.checked = false;
+
+        let p = parseInt(prefSlider.value);
+        let q = parseInt(qualSlider.value);
+
+        // Simple logic: If I change one, the other adjusts to sum to 100
+        if (source === 'pref') {
+          q = 100 - p;
+          qualSlider.value = q;
+        } else {
+          p = 100 - q;
+          prefSlider.value = p;
+        }
+
+        prefVal.innerText = p + '%';
+        qualVal.innerText = q + '%';
+      }
+
+      function toggleDefaults() {
+        const prefSlider = document.getElementById('prefWeightSlider');
+        const qualSlider = document.getElementById('qualWeightSlider');
+        const prefVal = document.getElementById('prefWeightVal');
+        const qualVal = document.getElementById('qualWeightVal');
+        const checkbox = document.getElementById('defaultWeights');
+
+        if (checkbox.checked) {
+          prefSlider.value = 70;
+          qualSlider.value = 30;
+          prefVal.innerText = '70%';
+          qualVal.innerText = '30%';
+        }
+      }
+    </script>
+
+    <!-- Results + Unallocated Students -->
+    <div class="row g-4 mb-4">
+      <!-- Allocation Summary -->
+      <div class="col-md-6">
+        <div class="card pm h-100 p-3">
+          <h6 class="fw-semibold mb-2 pm-title">Allocation summary</h6>
+          <ul class="small mb-0 text-secondary">
+            <li>1st choice: {{ stats.first_choices }} students</li>
+            <li>2nd choice: {{ stats.second_choices }} students</li>
+            <li>3rd choice: {{ stats.third_choices }} students</li>
+            <li>Unallocated: {{ total_unallocated }} students</li>
+            <li class="mt-2">Total allocated: {{ total_allocated }} / {{ total_students }} students</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Unallocated Students List -->
+      <div class="col-md-6">
+        <div class="card pm h-100 p-3">
+          <h6 class="fw-semibold mb-2 pm-title">Unallocated students</h6>
+          <ul class="small mb-0 text-secondary">
+            {% for student in unallocated_students %}
+            <li>{{ student.first_name }} {{ student.last_name }} ({{ student.email }})</li>
+            {% empty %}
+            <li>No unallocated students.</li>
+            {% endfor %}
+          </ul>
+          <p class="small text-secondary mt-2 mb-0">
+            These students have not been assigned to a project yet.
           </p>
+        </div>
+      </div>
+    </div>
 
-          <div class="mb-3">
-            <label class="form-label">Email subject</label>
-            <input type="text" class="form-control"
-                   value="Final Year Project Allocation Results"
-                   disabled>
+    <!-- Bottom Actions -->
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+      <button type="button" class="btn btn-ghost btn-sm">
+        View detailed results
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm">
+        Download report
+      </button>
+
+      <!-- Notify Students: opens modal -->
+      <button type="button" class="btn btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#notifyStudentsModal">
+        Notify students
+      </button>
+
+      <!-- Link to manual allocation page -->
+      <a href="{% url 'admin_manual_allocations' %}" class="btn btn-ghost btn-sm">
+        Go to manual allocation
+      </a>
+    </div>
+
+    <!-- Notify Students Modal -->
+    <div class="modal fade" id="notifyStudentsModal" tabindex="-1" aria-labelledby="notifyStudentsLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content card pm">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="notifyStudentsLabel">Notify students</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Preview message</label>
-            <textarea class="form-control" rows="6" disabled>
+          <div class="modal-body">
+
+            <p class="small text-secondary">
+              This is a static preview for the UI. In the final system, this dialog would email all
+              students with their allocation outcome (or notify them that they are still unallocated).
+            </p>
+
+            <div class="mb-3">
+              <label class="form-label">Email subject</label>
+              <input type="text" class="form-control" value="Final Year Project Allocation Results" disabled>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Preview message</label>
+              <textarea class="form-control" rows="6" disabled>
 Dear student,
 
 Your final year project allocation has been updated in ProjectMatch.
@@ -176,23 +223,23 @@ This is an automated message from ProjectMatch (sample text for UI only).
 Best regards,
 ProjectMatch System
             </textarea>
+            </div>
+
+            <div class="alert alert-info small mb-0">
+              <strong>Note:</strong> For this prototype, the button below does not send real emails.
+              It simply represents the action that will be implemented later.
+            </div>
           </div>
 
-          <div class="alert alert-info small mb-0">
-            <strong>Note:</strong> For this prototype, the button below does not send real emails.
-            It simply represents the action that will be implemented later.
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-gradient" data-bs-dismiss="modal">
+              Send notifications
+            </button>
           </div>
-        </div>
-
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-gradient" data-bs-dismiss="modal">
-            Send notifications
-          </button>
         </div>
       </div>
     </div>
-  </div>
 
-</div>
-{% endblock %}
+  </div>
+  {% endblock %}

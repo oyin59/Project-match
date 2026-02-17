@@ -32,3 +32,11 @@ class StudentProfileForm(forms.ModelForm):
             "skills": forms.Textarea(attrs={"rows": 4}),
             "research_interests": forms.Textarea(attrs={"rows": 3}),
         }
+
+class AllocationForm(forms.Form):
+    weight_preference = forms.IntegerField(label="Preference Weight (0-100)",initial=70)
+    weight_academic = forms.IntegerField(label="Qualification Weight (0-100)",initial=30)
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
