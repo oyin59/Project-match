@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Allocation Results | ProjectMatch{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        <h4 class="fw-semibold mb-4 text-center pm-title">Project Allocation Results</h4>
+
+        {% if is_allocated %}
+        <!-- SUCCESS STATE -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4 text-center bg-light rounded-3">
+                <div class="mb-3">
+                    <span class="badge bg-success fs-6 px-3 py-2">
+                        <i class="bi bi-check-circle-fill me-2"></i> Allocated
+                    </span>
+                </div>
+                <h2 class="fw-bold mb-1">{{ allocated_project.title }}</h2>
+                <p class="text-secondary mb-3">Supervisor: {{ supervisor }}</p>
+
+                <div class="alert alert-success d-inline-block px-4 py-2 mb-0">
+                    You got your <strong>{{ rank }} choice</strong> preference!
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Next Steps</h5>
+                <ol class="mb-4">
+                    <li class="mb-2">Contact your supervisor to arrange an initial meeting.</li>
+                    <li class="mb-2">Discuss the project scope and initial requirements.</li>
+                    <li class="mb-2">Complete the Project Registration Form (if applicable).</li>
+                </ol>
+
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-start">
+                    <a href="mailto:{{ supervisor.email }}" class="btn btn-primary px-4">
+                        <i class="bi bi-envelope-fill me-2"></i> Email Supervisor
+                    </a>
+                    <a href="{% url 'student_project_detail' allocated_project.id %}"
+                        class="btn btn-outline-secondary px-4">
+                        View Project Details
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- FAILURE STATE -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-5 text-center bg-light rounded-3">
+                <div class="mb-3">
+                    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Not Allocated
+                    </span>
+                </div>
+                <h4 class="fw-bold mb-2">Unfortunately, you were not allocated to a project.</h4>
+                <p class="text-secondary">This usually happens when your selected preferences were already filled by
+                    students with earlier submission times or higher matching scores.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0 fw-semibold">Your Preferences Status</h6>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for pref in preferences %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-secondary me-2">{{ pref.rank }}</span>
+                                {{ pref.project.title|truncatechars:30 }}
+                            </div>
+                            <span class="badge bg-light text-dark border">{{ pref.status }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No preferences submitted.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0 fw-semibold">Recommended Alternatives</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-secondary mb-3">These projects still have space and match your skills:</p>
+
+                        {% if alternatives %}
+                        <div class="list-group list-group-flush">
+                            {% for alt in alternatives %}
+                            <a href="{% url 'student_project_detail' alt.id %}"
+                                class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ alt.title }}</h6>
+                                </div>
+                                <small class="text-muted">Supervisor: {{ alt.supervisor }}</small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3 text-center">
+                            <a href="{% url 'student_projects' %}" class="btn btn-sm btn-outline-primary">View All
+                                Projects</a>
+                        </div>
+                        {% else %}
+                        <p class="text-center text-muted my-3">No matching alternatives found. Please browse all
+                            projects.</p>
+                        <div class="text-center">
+                            <a href="{% url 'student_projects' %}" class="btn btn-sm btn-primary">Browse Projects</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
