@@ -85,6 +85,8 @@
           <button type="submit" name="run_algo" class="btn btn-gradient px-4">
             Run allocation algorithm
           </button>
+
+
         </div>
       </form>
     </div>
@@ -168,12 +170,12 @@
 
     <!-- Bottom Actions -->
     <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-      <button type="button" class="btn btn-ghost btn-sm">
+      <a href="{% url 'admin_allocation_results' %}" class="btn btn-ghost btn-sm">
         View detailed results
-      </button>
-      <button type="button" class="btn btn-ghost btn-sm">
+      </a>
+      <a href="{% url 'admin_export_data' %}" class="btn btn-ghost btn-sm">
         Download report
-      </button>
+      </a>
 
       <!-- Notify Students: opens modal -->
       <button type="button" class="btn btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#notifyStudentsModal">

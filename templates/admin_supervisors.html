@@ -48,7 +48,7 @@
       <thead>
         <tr>
           <th scope="col">Supervisor</th>
-          <th scope="col">Dept.</th>
+          <th scope="col">Course</th>
           <th scope="col">Projects</th>
           <th scope="col">Students interested</th>
           <th scope="col">Quota</th>
@@ -61,7 +61,7 @@
         {% for supervisor in supervisors %}
         <tr>
           <td>{{ supervisor.first_name }} {{ supervisor.last_name }}</td>
-          <td>{{ supervisor.department }}</td>
+          <td>{{ supervisor.courses }}</td>
           <td>{{ supervisor.total_projects_count }}</td>
           <td>{{ supervisor.total_interested }}</td>
           <td>{{ supervisor.total_quota }}</td>

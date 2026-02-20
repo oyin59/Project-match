@@ -1,5 +1,7 @@
 # app_name/views.py
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import (
@@ -281,6 +283,7 @@ def student_submit_preferences(request):
             return redirect("student_preferences")
             
         student.preferences_submitted = True
+        student.preferences_submitted_at = timezone.now()
         student.save()
         
         messages.success(request, "Your preferences have been successfully submitted!")
@@ -598,18 +601,34 @@ def admin_dashboard(request):
     total_supervisors = Supervisor.objects.count()
     total_allocations = Student.objects.filter(allocated_project__isnull=False).count()
     total_unallocated = Student.objects.filter(allocated_project__isnull=True).count()
-    total_allocations_percentage = (total_allocations / total_students) * 100
+    
+    if total_students > 0:
+        total_allocations_percentage = (total_allocations / total_students) * 100
+    else:
+        total_allocations_percentage = 0
+        
     total_preferences_submitted = Student.objects.filter(preferences_submitted=True).count()
     total_projects_added = Project.objects.count()
-    return render(request, "admin_dashboard.html", {"role": "admin",
-    "total_students": total_students,
-    "total_projects": total_projects,
-    "total_supervisors": total_supervisors,
-    "total_allocations": total_allocations,
-    "total_unallocated": total_unallocated,
-    "total_allocations_percentage": total_allocations_percentage,
-    "total_preferences_submitted": total_preferences_submitted,
-    "total_projects_added": total_projects_added
+    
+    # Calculate filled/available projects
+    # A project is filled if allocated_students count >= quota
+    from django.db.models import Count, F, Q
+    projects_annotated = Project.objects.annotate(num_allocated=Count('allocated_students'))
+    total_filled_projects = projects_annotated.filter(num_allocated__gte=F('quota')).count()
+    total_available_projects = projects_annotated.filter(num_allocated__lt=F('quota')).count()
+
+    return render(request, "admin_dashboard.html", {
+        "role": "admin",
+        "total_students": total_students,
+        "total_projects": total_projects,
+        "total_supervisors": total_supervisors,
+        "total_allocations": total_allocations,
+        "total_unallocated": total_unallocated,
+        "total_allocations_percentage": round(total_allocations_percentage),
+        "total_preferences_submitted": total_preferences_submitted,
+        "total_projects_added": total_projects_added,
+        "total_filled_projects": total_filled_projects,
+        "total_available_projects": total_available_projects
     })
 
 
@@ -794,10 +813,15 @@ def admin_allocations(request):
         weight_preference = request.POST.get("weight_preference", 70)
         weight_academic = request.POST.get("weight_academic", 30)
         
-        # logic to run algorithm will go here
-        # for now, just flash message
         if "run_algo" in request.POST:
-             messages.success(request, f"Allocation algorithm started with weights: Pref={weight_preference}%, Grade={weight_academic}% (Logic coming soon)")
+             from .utils import run_allocation_algorithm
+             count = run_allocation_algorithm()
+             
+             if count > 0:
+                 messages.success(request, f"Allocation complete! {count} students were newly allocated.")
+             else:
+                 messages.info(request, "Algorithm ran, but no new allocations were made.")
+                 
              return redirect("admin_allocations")
 
     total_students = Student.objects.count()
@@ -813,6 +837,13 @@ def admin_allocations(request):
     total_spaces_filled = allocated_count
     total_spaces_available = total_capacity - total_spaces_filled
 
+    # 1. Unallocated Students (Profile done, Not allocated)
+    # User feedback: School system has 2 chances. Manual allocation is for edge cases (forgot to submit etc).
+    # So show ALL unallocated students, regardless of preferences submitted.
+    unallocated_students = Student.objects.filter(
+        allocated_project__isnull=True
+    ).order_by('-preferences_submitted', 'last_name')
+
     from django.db.models import Count, Q, F
     stats = StudentPreference.objects.filter(
         project=F('student__allocated_project')
@@ -821,7 +852,6 @@ def admin_allocations(request):
         second_choices=Count('student', filter=Q(rank=2)),
         third_choices=Count('student', filter=Q(rank=3)),
     )
-    unallocated_students = Student.objects.filter(allocated_project__isnull=True).order_by('last_name')
 
     return render(request, "admin_allocations.html", {
         "role": "admin",
@@ -915,4 +945,173 @@ def admin_project_detail(request, project_id):
         "allocated_students": allocated_students,
         "interested_preferences": interested_preferences,
         "allocation_percentage": allocation_percentage
+    })
+
+
+@login_required
+def student_allocation(request):
+    if request.session.get("user_role") != "student":
+        return redirect("home")
+    
+    student = get_object_or_404(Student, id=request.session["user_id"])
+    
+    context = {
+        "role": "student",
+        "student": student,
+        "is_allocated": False,
+        "allocated_project": None,
+        "supervisor": None,
+        "rank": None,
+        "preferences": [],
+        "alternatives": []
+    }
+    
+    if student.allocated_project:
+        context["is_allocated"] = True
+        context["allocated_project"] = student.allocated_project
+        context["supervisor"] = student.allocated_project.supervisor
+        
+        # Find which rank this was
+        try:
+            pref = StudentPreference.objects.get(student=student, project=student.allocated_project)
+            if pref.rank == 1: context["rank"] = "1st"
+            elif pref.rank == 2: context["rank"] = "2nd"
+            elif pref.rank == 3: context["rank"] = "3rd"
+            else: context["rank"] = f"{pref.rank}th"
+            
+        except StudentPreference.DoesNotExist:
+            context["rank"] = "Manually Assigned"
+            
+    else:
+        # Not Allocated Logic
+        from .utils import calculate_prerequisite_match
+        
+        # 1. Get their preferences and annotate with status
+        prefs = StudentPreference.objects.filter(student=student).order_by('rank')
+        pref_data = []
+        
+        # Helper to check if project full
+        projects = Project.objects.annotate(current_allocations=Count('allocated_students'))
+        states = {p.id: {'filled': p.current_allocations, 'quota': p.quota} for p in projects}
+        
+        for p in prefs:
+            proj = p.project
+            s = states.get(proj.id, {'filled':0, 'quota':0})
+            is_full = s['filled'] >= s['quota']
+            
+            pref_data.append({
+                "rank": p.rank,
+                "project": proj,
+                "status": "Filled" if is_full else "Criteria Mismatch" 
+            })
+        context["preferences"] = pref_data
+        
+        # 2. Find Alternatives (Projects with space + >0 criteria match)
+        # Get all projects with space
+        all_projects_with_space = [p for p in projects if p.current_allocations < p.quota]
+        
+        alternatives = []
+        # Get profile skills safely
+        skills = ""
+        try:
+             skills = student.profile.skills
+        except StudentProfileDetails.DoesNotExist:
+             pass
+
+        for proj in all_projects_with_space:
+            matches, _ = calculate_prerequisite_match(skills, proj.prerequisites)
+            if matches > 0:
+                alternatives.append(proj)
+                if len(alternatives) >= 3: break # Limit to 3 suggestions
+        
+        context["alternatives"] = alternatives
+
+    return render(request, "student_allocation.html", context)
+
+
+def admin_allocation_results(request):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+    
+    # optimize query
+    students = Student.objects.select_related('allocated_project', 'allocated_project__supervisor').all().order_by('last_name')
+    
+    # We want to show rank if allocated
+    # This might be N+1 if we iterate, but we can pre-fetch preferences
+    # Or just do a simple lookup in template if we pass a dict.
+    # Let's annotate or just build a list.
+    
+    student_data = []
+    for s in students:
+        rank = "-"
+        if s.allocated_project:
+            # Try to start with "Manual"
+            rank = "Manual"
+            # check preference
+            # (Inefficient in loop, but okay for <100 students. For production, use prefetch_related)
+            try:
+                p = StudentPreference.objects.get(student=s, project=s.allocated_project)
+                rank = p.rank
+            except StudentPreference.DoesNotExist:
+                pass
+        
+        student_data.append({
+            "student": s,
+            "allocated_project": s.allocated_project,
+            "supervisor": s.allocated_project.supervisor if s.allocated_project else None,
+            "rank": rank
+        })
+            
+    return render(request, "admin_allocation_results.html", {
+        "student_data": student_data,
+        "role": "admin"
+    })
+
+
+@login_required
+def admin_manual_allocations(request):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+    
+    if request.method == "POST":
+        student_id = request.POST.get("student")
+        project_id = request.POST.get("project")
+        
+        if student_id and project_id:
+            student = get_object_or_404(Student, id=student_id)
+            project = get_object_or_404(Project, id=project_id)
+            
+            # Verify project has space
+            current_count = project.allocated_students.count()
+            if current_count < project.quota:
+                # Assign
+                student.allocated_project = project
+                student.save()
+                messages.success(request, f"Successfully allocated {student} to {project.title}")
+            else:
+                messages.error(request, f"Cannot allocate: Project {project.title} is full.")
+        else:
+            messages.error(request, "Please select both a student and a project.")
+            
+        return redirect("admin_manual_allocations")
+
+    # GET: Prepare Lists
+    
+    # 1. Unallocated Students (Profile done, Not allocated)
+    # User feedback: School system has 2 chances. Manual allocation is for edge cases (forgot to submit etc).
+    # So show ALL unallocated students, regardless of preferences submitted.
+    unallocated_students = Student.objects.filter(
+        allocated_project__isnull=True
+    ).order_by('-preferences_submitted', 'last_name')
+    
+    # 2. Available Projects (Quota > Count)
+    # Annotate with count
+    available_projects = Project.objects.annotate(
+        allocation_count=Count('allocated_students')
+    ).filter(allocation_count__lt=F('quota')).order_by('title')
+    
+    return render(request, "admin_manual_allocations.html", {
+        "role": "admin",
+        "unallocated_students": unallocated_students,
+        "available_projects": available_projects
     })

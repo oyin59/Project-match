@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detailed Allocation Results | ProjectMatch{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h4 class="fw-semibold mb-0 pm-title">Detailed Allocation Results</h4>
+            <p class="text-secondary small mb-0">View all student allocations and their status.</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'admin_allocations' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Overview
+            </a>
+
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Student</th>
+                            <th>Allocated Project</th>
+                            <th>Supervisor</th>
+                            <th>Rank</th>
+                            <th class="text-end pe-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in student_data %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-semibold">{{ item.student.first_name }} {{ item.student.last_name }}
+                                </div>
+                                <div class="small text-muted">{{ item.student.email }}</div>
+                            </td>
+                            <td>
+                                {% if item.allocated_project %}
+                                <a href="{% url 'admin_project_detail' item.allocated_project.id %}"
+                                    class="text-decoration-none fw-medium">
+                                    {{ item.allocated_project.title|truncatechars:40 }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.supervisor %}
+                                {{ item.supervisor }}
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.rank == 'Manual' %}
+                                <span class="badge bg-secondary">Manual</span>
+                                {% elif item.rank != '-' %}
+                                <span class="badge bg-info text-dark">{{ item.rank }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                {% if item.allocated_project %}
+                                <span class="badge bg-success bg-opacity-10 text-success px-3">Allocated</span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning px-3">Unallocated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                No students found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

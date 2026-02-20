@@ -4,7 +4,7 @@
 {% block content %}
 
 <div class="py-4">
-  <h3 class="fw-bold mb-4 text-center pm-title">Admin dashboard</h3>
+  <h4 class="fw-semibold mb-0 text-center pm-title">Allocations</h4>
 
   <!-- KPI tiles -->
   <div class="card pm p-4 mb-4">
@@ -48,14 +48,15 @@
   <div class="mb-2 fw-semibold text-secondary">Allocation status</div>
   <div class="card pm p-4 mb-4">
     <div class="progress mb-2" style="height: 12px;">
-      <div class="progress-bar" role="progressbar" style="width: 80%; background-color: var(--pm-purple);"
-        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar" role="progressbar"
+        style="width: {{ total_allocations_percentage|floatformat:0 }}%; background-color: var(--pm-purple, #6f42c1);"
+        aria-valuenow="{{ total_allocations_percentage|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
       </div>
     </div>
     <div class="text-end small text-secondary">{{total_allocations_percentage}}% complete</div>
 
     <ul class="small text-secondary mt-3 mb-0">
-      <li>{{total_allocations}}students allocated</li>
+      <li>{{total_allocations}} students allocated</li>
       <li>{{total_unallocated}} students unallocated</li>
       <li>{{total_projects}} projects total</li>
       <li>{{total_filled_projects}} projects filled</li>

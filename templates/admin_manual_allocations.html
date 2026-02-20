@@ -1,211 +1,130 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
+
 {% block title %}Manual Allocation | ProjectMatch{% endblock %}
 
 {% block content %}
+<div class="container-fluid">
+  <div class="row mb-4 align-items-center">
+    <div class="col">
+      <h4 class="fw-semibold mb-0 pm-title">Manual Allocation</h4>
+      <p class="text-secondary small mb-0">Override or fill gaps by manually assigning students to projects.</p>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'admin_allocations' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Back to Allocations
+      </a>
+    </div>
+  </div>
 
-<div class="py-4">
-  <h4 class="fw-semibold mb-2 text-center pm-title">Manual allocation</h4>
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
 
-  <!-- Back button -->
-  <a href="{% url 'admin_allocations' %}" class="btn btn-ghost btn-sm mb-4">
-    ← Back to allocation overview
-  </a>
+  <form method="POST" action="{% url 'admin_manual_allocations' %}">
+    {% csrf_token %}
 
-  <!-- STUDENT SEARCH + FILTER -->
-  <div class="card pm p-3 mb-4">
-    <h5 class="fw-semibold mb-3 pm-title">Students</h5>
-
-    <div class="d-flex flex-wrap gap-4 mb-3 justify-content-between">
-      <!-- Search -->
-      <div style="min-width:260px; max-width:340px; flex-grow:1;">
-        <label class="form-label small text-secondary mb-1">Search students</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" class="form-control" placeholder="Search students…">
+    <div class="row g-4">
+      <!-- Unallocated Students Column -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white py-3">
+            <h6 class="mb-0 fw-semibold text-danger">1. Select Unallocated Student</h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush overflow-auto" style="max-height: 500px;">
+              {% for student in unallocated_students %}
+              <label class="list-group-item list-group-item-action d-flex align-items-center gap-3">
+                <input class="form-check-input flex-shrink-0" type="radio" name="student" value="{{ student.id }}"
+                  required>
+                <div class="w-100">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-medium">{{ student.first_name }} {{ student.last_name }}</span>
+                    <span class="badge bg-light text-dark border">{{ student.email }}</span>
+                  </div>
+                  <small class="text-muted d-block mt-1">
+                    Profile: {% if student.profile %}Has Skills{% else %}No Profile{% endif %} |
+                    Prefs Submitted: {% if student.preferences_submitted %}Yes{% else %}No{% endif %}
+                  </small>
+                </div>
+              </label>
+              {% empty %}
+              <div class="p-4 text-center text-muted">
+                <i class="bi bi-check-circle-fill h2 text-success d-block mb-2"></i>
+                No unallocated students found!
+              </div>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Filter -->
-      <div style="min-width:170px;">
-        <label class="form-label small text-secondary mb-1">Filter</label>
-        <select class="form-select form-select-sm">
-          <option selected>All students</option>
-          <option>Allocated</option>
-          <option>Unallocated</option>
-          <option>No preferences</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- STUDENTS TABLE -->
-    <div class="table-responsive">
-      <table class="table pm-table align-middle mb-0">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>ID</th>
-            <th>Prefs</th>
-            <th>1st</th>
-            <th>2nd</th>
-            <th>Allocated</th>
-            <th class="text-end">Select</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Jane Doe</td>
-            <td>12345</td>
-            <td>✔</td>
-            <td>AI Chatbot</td>
-            <td>ML Dashboard</td>
-            <td>AI Chatbot</td>
-            <td class="text-end">
-              <button class="btn btn-ghost btn-sm">Select</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Tom Brown</td>
-            <td>12346</td>
-            <td>✔</td>
-            <td>E-commerce</td>
-            <td>AI Chatbot</td>
-            <td>Unallocated</td>
-            <td class="text-end">
-              <button class="btn btn-ghost btn-sm">Select</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Mia Johnson</td>
-            <td>12347</td>
-            <td>✖</td>
-            <td>—</td>
-            <td>—</td>
-            <td>Unallocated</td>
-            <td class="text-end">
-              <button class="btn btn-ghost btn-sm">Select</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- PROJECT SEARCH + FILTER -->
-  <div class="card pm p-3 mb-4">
-    <h5 class="fw-semibold mb-3 pm-title">Projects</h5>
-
-    <div class="d-flex flex-wrap gap-4 mb-3 justify-content-between">
-      <!-- Search -->
-      <div style="min-width:260px; max-width:340px; flex-grow:1;">
-        <label class="form-label small text-secondary mb-1">Search projects</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
-          <input type="text" class="form-control" placeholder="Search projects…">
+      <!-- Available Projects Column -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white py-3">
+            <h6 class="mb-0 fw-semibold text-success">2. Select Project (Available Slots)</h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush overflow-auto" style="max-height: 500px;">
+              {% for project in available_projects %}
+              <label class="list-group-item list-group-item-action d-flex align-items-center gap-3">
+                <input class="form-check-input flex-shrink-0" type="radio" name="project" value="{{ project.id }}"
+                  required>
+                <div class="w-100">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-medium">{{ project.title|truncatechars:50 }}</span>
+                    <span class="badge bg-success bg-opacity-10 text-success">
+                      {{ project.allocation_count }} / {{ project.quota }} filled
+                    </span>
+                  </div>
+                  <small class="text-muted d-block mt-1">
+                    Supervisor: {{ project.supervisor }}
+                  </small>
+                </div>
+              </label>
+              {% empty %}
+              <div class="p-4 text-center text-muted">
+                All projects are full!
+              </div>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Filter -->
-      <div style="min-width:170px;">
-        <label class="form-label small text-secondary mb-1">Filter</label>
-        <select class="form-select form-select-sm">
-          <option selected>Has spaces</option>
-          <option>All projects</option>
-          <option>Fully allocated</option>
-        </select>
+    <!-- Action Bar -->
+    <div class="card border-0 shadow-sm mt-4 fixed-bottom m-4 mx-auto" style="max-width: 600px;">
+      <div class="card-body p-3 d-flex align-items-center justify-content-between">
+        <div>
+          <strong>Ready to assign?</strong>
+          <div class="small text-secondary">This action will immediately update the database.</div>
+        </div>
+        <button type="submit" class="btn btn-primary px-4 fw-medium">
+          <i class="bi bi-check-lg me-2"></i> Confirm Assignment
+        </button>
       </div>
     </div>
+  </form>
 
-    <!-- PROJECTS TABLE -->
-    <div class="table-responsive">
-      <table class="table pm-table align-middle mb-0">
-        <thead>
-          <tr>
-            <th>Project title</th>
-            <th>Supervisor</th>
-            <th>Quota</th>
-            <th>Allocated</th>
-            <th>Remaining</th>
-            <th class="text-end">Select</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>AI Chatbot</td>
-            <td>Dr. Smith</td>
-            <td>2</td>
-            <td>2 / 2</td>
-            <td>0</td>
-            <td class="text-end">
-              <button class="btn btn-ghost btn-sm" disabled>Full</button>
-            </td>
-          </tr>
-          <tr>
-            <td>Data Mining Tool</td>
-            <td>Dr. Jones</td>
-            <td>3</td>
-            <td>1 / 3</td>
-            <td>2</td>
-            <td class="text-end">
-              <button class="btn btn-ghost btn-sm">Select</button>
-            </td>
-          </tr>
-          <tr>
-            <td>E-commerce Website</td>
-            <td>Dr. Patel</td>
-            <td>3</td>
-            <td>2 / 3</td>
-            <td>1</td>
-            <td class="text-end">
-              <button class="btn btn-ghost btn-sm">Select</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- SELECTED SECTIONS -->
-  <div class="card pm p-3 mb-4">
-    <h5 class="fw-semibold mb-3 pm-title">Selected student</h5>
-    <p><strong>Name:</strong> Jane Doe</p>
-    <p><strong>Student ID:</strong> 12345</p>
-    <p><strong>Programme:</strong> BSc Computer Science</p>
-    <p class="fw-semibold mt-3 mb-1">Preferences:</p>
-    <ul class="small mb-2 text-secondary">
-      <li>1st: AI Chatbot</li>
-      <li>2nd: ML Dashboard</li>
-      <li>3rd: Data Mining Tool</li>
-    </ul>
-  </div>
-
-  <div class="card pm p-3 mb-4">
-    <h5 class="fw-semibold mb-3 pm-title">Selected project</h5>
-    <p><strong>Title:</strong> Data Mining Tool</p>
-    <p><strong>Supervisor:</strong> Dr. Jones</p>
-    <p><strong>Quota:</strong> 3 — <strong>Allocated:</strong> 1 — <strong>Remaining:</strong> 2</p>
-    <p class="fw-semibold mt-3 mb-1">Prerequisites:</p>
-    <ul class="small mb-2 text-secondary">
-      <li>AI Fundamentals</li>
-      <li>SQL</li>
-    </ul>
-  </div>
-
-  <!-- ACTION BUTTONS -->
-  <div class="text-center my-4">
-    <button type="button" class="btn btn-gradient me-2">Assign student</button>
-    <button type="button" class="btn btn-outline">Remove allocation</button>
-  </div>
-
-  <!-- SUMMARY -->
-  <div class="card pm p-3 mb-4">
-    <h5 class="fw-semibold mb-3 pm-title">Allocation summary</h5>
-    <ul class="small mb-0 text-secondary">
-      <li>Total students: 15</li>
-      <li>Allocated: 12</li>
-      <li>Unallocated: 3</li>
-      <li>Projects with space: 4</li>
-    </ul>
-  </div>
 </div>
 
+<style>
+  /* Custom scrollbar for lists */
+  .list-group.overflow-auto {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .fixed-bottom {
+    z-index: 1030;
+    box-shadow: 0 -0.5rem 1rem rgba(0, 0, 0, .15) !important;
+  }
+</style>
 {% endblock %}

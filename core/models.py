@@ -14,6 +14,7 @@ class Supervisor(models.Model):
     last_name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=225)
+    courses = models.TextField(default="Computer Science", blank=True, help_text="Comma-separated list of courses (e.g., 'Computer Science, Software Engineering')")
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}".strip() or self.email
@@ -75,6 +76,7 @@ class Student(models.Model):
     password = models.CharField(max_length=225)
 
     preferences_submitted = models.BooleanField(default=False)
+    preferences_submitted_at = models.DateTimeField(null=True, blank=True)
     allocated_project = models.ForeignKey(
         Project,
         null=True,

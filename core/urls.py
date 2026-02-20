@@ -17,6 +17,7 @@ urlpatterns = [
     path("student-preferences/reorder/<int:preference_id>/<str:direction>/", views.student_reorder_preference, name="student_reorder_preference"),
     path("student-preferences/submit/", views.student_submit_preferences, name="student_submit_preferences"),
     path("student-preferences/save-draft/", views.student_save_draft, name="student_save_draft"),
+    path("student/allocation/", views.student_allocation, name="student_allocation"),
 
     # AJAX
     path("ajax/load-modules/", views.ajax_load_modules, name="ajax_load_modules"),
@@ -36,6 +37,7 @@ urlpatterns = [
     path("admin-projects/", views.admin_projects, name="admin_projects"),
     path("admin-supervisors/", views.admin_supervisors, name="admin_supervisors"),
     path('admin-allocations/', views.admin_allocations, name='admin_allocations'),
+    path('admin-allocation-results/', views.admin_allocation_results, name='admin_allocation_results'),
     path('admin-manual-allocations/', views.admin_manual_allocations, name='admin_manual_allocations'),
     path('admin-export-data/', views.admin_export_data, name='admin_export_data'),
     path('admin-student/<int:student_id>/', views.admin_student_detail, name='admin_student_detail'),
