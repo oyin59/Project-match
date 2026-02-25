@@ -1,0 +1,136 @@
+﻿Clearing existing data...
+Added Department: EPS
+Added Course: Computer Science
+pipenv : Traceback 
+(most recent call 
+last):
+At line:1 char:1
++ pipenv run python 
+manage.py 
+seed_final_data > 
+seed_output.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (Traceback    
+ (most recent call    
+ last)::String) [    
+], RemoteExceptio    n
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+  File "C:\Users\oyina
+\projectmatch\manage.p
+y", line 22, in 
+<module>
+    main()
+    ~~~~^^
+  File "C:\Users\oyina
+\projectmatch\manage.p
+y", line 18, in main
+    execute_from_comma
+nd_line(sys.argv)
+    ~~~~~~~~~~~~~~~~~~
+~~~~~~~^^^^^^^^^^
+  File "C:\Users\oyina
+\.virtualenvs\projectm
+atch-Zb0f_AJb\Lib\site
+-packages\django\core\
+management\__init__.py
+", line 442, in execut
+e_from_command_line
+    utility.execute()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\oyina
+\.virtualenvs\projectm
+atch-Zb0f_AJb\Lib\site
+-packages\django\core\
+management\__init__.py
+", line 436, in 
+execute
+    self.fetch_command
+(subcommand).run_from_
+argv(self.argv)
+    ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~^^^^^^^^^^^
+  File "C:\Users\oyina
+\.virtualenvs\projectm
+atch-Zb0f_AJb\Lib\site
+-packages\django\core\
+management\base.py", 
+line 416, in 
+run_from_argv
+    
+self.execute(*args, 
+**cmd_options)
+    ~~~~~~~~~~~~^^^^^^
+^^^^^^^^^^^^^^^^
+  File "C:\Users\oyina
+\.virtualenvs\projectm
+atch-Zb0f_AJb\Lib\site
+-packages\django\core\
+management\base.py", 
+line 460, in execute
+    output = 
+self.handle(*args, 
+**options)
+  File "C:\Users\oyina
+\projectmatch\core\man
+agement\commands\seed_
+final_data.py", line 
+28, in handle
+    
+Admin.objects.create(
+    
+~~~~~~~~~~~~~~~~~~~~^
+        
+first_name="Grace",
+        
+^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        
+password="password123"
+        
+^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\oyina
+\.virtualenvs\projectm
+atch-Zb0f_AJb\Lib\site
+-packages\django\db\mo
+dels\manager.py", 
+line 87, in 
+manager_method
+    return getattr(sel
+f.get_queryset(), 
+name)(*args, **kwargs)
+           ~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~^^^^^^^^^^^^^^^^^
+  File "C:\Users\oyina
+\.virtualenvs\projectm
+atch-Zb0f_AJb\Lib\site
+-packages\django\db\mo
+dels\query.py", line 
+663, in create
+    obj = 
+self.model(**kwargs)
+  File "C:\Users\oyina
+\.virtualenvs\projectm
+atch-Zb0f_AJb\Lib\site
+-packages\django\db\mo
+dels\base.py", line 
+569, in __init__
+    raise TypeError(
+    ...<2 lines>...
+    )
+TypeError: Admin() 
+got unexpected 
+keyword arguments: 
+'first_name', 
+'last_name'

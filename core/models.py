@@ -168,3 +168,21 @@ class StudentPreference(models.Model):
 
     def __str__(self):
         return f"{self.student.email} - {self.project.title} (Rank {self.rank})"
+
+
+class Notification(models.Model):
+    # Recipient can be any of the three user types
+    student_recipient = models.ForeignKey(Student, null=True, blank=True, on_delete=models.CASCADE, related_name="notifications")
+    supervisor_recipient = models.ForeignKey(Supervisor, null=True, blank=True, on_delete=models.CASCADE, related_name="notifications")
+    admin_recipient = models.ForeignKey(Admin, null=True, blank=True, on_delete=models.CASCADE, related_name="notifications")
+    
+    message = models.CharField(max_length=255)
+    link = models.CharField(max_length=255, blank=True, help_text="Optional URL to redirect to when clicked")
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Notification: {self.message}"

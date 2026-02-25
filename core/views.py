@@ -22,42 +22,38 @@ def home(request):
     error = None
 
     if request.method == "POST":
-        role = request.POST.get("role")
         email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password", "")
 
         # Basic empty-field checks
         if not email or not password:
             error = "Please enter both email and password."
-        elif not role:
-            error = "Please select a role."
         else:
-            user = None
+            # Look up sequentially in Admin, Supervisor, then Student tables
+            
+            # Check Admin
+            user = Admin.objects.filter(email__iexact=email, password=password).first()
+            if user:
+                request.session["user_role"] = "admin"
+                request.session["user_id"] = user.id
+                return redirect("admin_dashboard")
+            
+            # Check Supervisor
+            user = Supervisor.objects.filter(email__iexact=email, password=password).first()
+            if user:
+                request.session["user_role"] = "supervisor"
+                request.session["user_id"] = user.id
+                return redirect("supervisor_dashboard")
 
-            # Look up in the right table based on role
-            if role == "student":
-                user = Student.objects.filter(email__iexact=email, password=password).first()
-                if user:
-                    request.session["user_role"] = "student"
-                    request.session["user_id"] = user.id
-                    return redirect("student_dashboard")
-
-            elif role == "supervisor":
-                user = Supervisor.objects.filter(email__iexact=email, password=password).first()
-                if user:
-                    request.session["user_role"] = "supervisor"
-                    request.session["user_id"] = user.id
-                    return redirect("supervisor_dashboard")
-
-            elif role == "admin":
-                user = Admin.objects.filter(email__iexact=email, password=password).first()
-                if user:
-                    request.session["user_role"] = "admin"
-                    request.session["user_id"] = user.id
-                    return redirect("admin_dashboard")
+            # Check Student
+            user = Student.objects.filter(email__iexact=email, password=password).first()
+            if user:
+                request.session["user_role"] = "student"
+                request.session["user_id"] = user.id
+                return redirect("student_dashboard")
 
             # If we get here, login failed
-            error = "Invalid email or password for the selected role."
+            error = "Invalid email or password."
 
     # GET request, or POST with error → show login again
     return render(request, "home.html", {"role": "guest", "error": error})
@@ -403,6 +399,31 @@ def student_reorder_preference(request, preference_id, direction):
             preference.save()
         
     return redirect("student_preferences")
+
+import json
+def ajax_update_preference_order(request):
+    if request.method == "POST" and request.session.get("user_role") == "student":
+        student = get_object_or_404(Student, id=request.session["user_id"])
+        
+        if student.preferences_submitted:
+            return JsonResponse({"success": False, "error": "Preferences are locked."})
+
+        try:
+            data = json.loads(request.body)
+            ordered_ids = data.get("ordered_ids", [])
+            
+            # First reset all current ranks to 0 for this student
+            StudentPreference.objects.filter(student=student).update(rank=0)
+            
+            # Update the sorted ones with their new rank (1-indexed)
+            for index, pref_id in enumerate(ordered_ids):
+                StudentPreference.objects.filter(id=pref_id, student=student).update(rank=index + 1)
+                
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+
+    return JsonResponse({"success": False, "error": "Invalid request."})
 
 
 def supervisor_dashboard(request):
@@ -948,7 +969,6 @@ def admin_project_detail(request, project_id):
     })
 
 
-@login_required
 def student_allocation(request):
     if request.session.get("user_role") != "student":
         return redirect("home")
@@ -1068,7 +1088,6 @@ def admin_allocation_results(request):
     })
 
 
-@login_required
 def admin_manual_allocations(request):
     if request.session.get("user_role") != "admin":
         return redirect("home")
@@ -1082,14 +1101,12 @@ def admin_manual_allocations(request):
             project = get_object_or_404(Project, id=project_id)
             
             # Verify project has space
-            current_count = project.allocated_students.count()
-            if current_count < project.quota:
-                # Assign
+            if project.quota > project.allocated_students.count():
                 student.allocated_project = project
                 student.save()
                 messages.success(request, f"Successfully allocated {student} to {project.title}")
             else:
-                messages.error(request, f"Cannot allocate: Project {project.title} is full.")
+                messages.error(request, f"{project.title} has reached its quota limit.")
         else:
             messages.error(request, "Please select both a student and a project.")
             
@@ -1115,3 +1132,24 @@ def admin_manual_allocations(request):
         "unallocated_students": unallocated_students,
         "available_projects": available_projects
     })
+
+
+def mark_notifications_read(request):
+    """Marks all unread notifications for the current user as read."""
+    if request.method == "POST":
+        user_id = request.session.get("user_id")
+        user_role = request.session.get("user_role")
+
+        if user_id and user_role:
+            from .models import Notification
+            if user_role == "student":
+                Notification.objects.filter(student_recipient_id=user_id, is_read=False).update(is_read=True)
+            elif user_role == "supervisor":
+                Notification.objects.filter(supervisor_recipient_id=user_id, is_read=False).update(is_read=True)
+            elif user_role == "admin":
+                Notification.objects.filter(admin_recipient_id=user_id, is_read=False).update(is_read=True)
+
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect("home")

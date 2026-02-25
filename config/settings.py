@@ -63,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.notifications',
             ],
         },
     },
@@ -128,3 +129,6 @@ TEMPLATES[0]['DIRS'] = [BASE_DIR / 'templates']
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]  # serve /static in dev
+
+# Override default login URL
+LOGIN_URL = '/'

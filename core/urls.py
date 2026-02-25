@@ -22,6 +22,7 @@ urlpatterns = [
     # AJAX
     path("ajax/load-modules/", views.ajax_load_modules, name="ajax_load_modules"),
     path("ajax/load-courses/", views.ajax_load_courses, name="ajax_load_courses"),
+    path("ajax/student-preferences/update-order/", views.ajax_update_preference_order, name="ajax_update_preference_order"),
 
     # Supervisor
     path("supervisor/", views.supervisor_dashboard, name="supervisor_dashboard"),
@@ -42,4 +43,7 @@ urlpatterns = [
     path('admin-export-data/', views.admin_export_data, name='admin_export_data'),
     path('admin-student/<int:student_id>/', views.admin_student_detail, name='admin_student_detail'),
     path('admin-project/<int:project_id>/', views.admin_project_detail, name='admin_project_detail'),
+
+    # Notifications
+    path("notifications/mark-read/", views.mark_notifications_read, name="mark_notifications_read"),
 ]
