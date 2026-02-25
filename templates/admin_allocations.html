@@ -170,22 +170,18 @@
 
     <!-- Bottom Actions -->
     <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-      <a href="{% url 'admin_allocation_results' %}" class="btn btn-ghost btn-sm">
+      <a href="{% url 'admin_allocation_results' %}" class="btn btn-outline-secondary btn-sm">
         View detailed results
       </a>
-      <a href="{% url 'admin_export_data' %}" class="btn btn-ghost btn-sm">
+      <a href="{% url 'admin_export_data' %}" class="btn btn-outline-secondary btn-sm">
         Download report
       </a>
 
       <!-- Notify Students: opens modal -->
-      <button type="button" class="btn btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#notifyStudentsModal">
+      <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+        data-bs-target="#notifyStudentsModal">
         Notify students
       </button>
-
-      <!-- Link to manual allocation page -->
-      <a href="{% url 'admin_manual_allocations' %}" class="btn btn-ghost btn-sm">
-        Go to manual allocation
-      </a>
     </div>
 
     <!-- Notify Students Modal -->
@@ -234,7 +230,7 @@ ProjectMatch System
           </div>
 
           <div class="modal-footer border-0">
-            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-gradient" data-bs-dismiss="modal">
               Send notifications
             </button>

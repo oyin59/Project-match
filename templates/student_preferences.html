@@ -7,12 +7,24 @@
 
 <div class="container py-4">
 
+  <!-- Save indicator (toast-style) -->
+  <div id="saveToast" style="
+    position: fixed; top: 1.2rem; right: 1.2rem; z-index: 9999;
+    background: #198754; color: #fff;
+    padding: 0.55rem 1.1rem; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  ">
+    <i class="bi bi-check-circle-fill me-1"></i> Order saved
+  </div>
+
   <!-- Page heading -->
   <div class="text-center mb-4">
     <h2 class="fw-bold">My Project Preferences</h2>
     <p class="text-secondary mb-1">
-      Select up to 3 projects. They will appear as "Unranked" below.
-      Use the <strong>Make 1st Choice</strong> (or 2nd/3rd) buttons or arrows to set your final order.
+      Select up to 3 projects. Drag ranked cards to reorder, or drag from
+      <strong>Unranked</strong> up into the ranked list.
     </p>
     <p class="text-secondary small">
       You can change these until
@@ -23,98 +35,110 @@
   <div class="row justify-content-center">
     <div class="col-lg-8">
 
-      <!-- RANKED ITEMS (Rank > 0) -->
-      {% for pref in preferences %}
-      {% if pref.rank > 0 %}
-      <div class="card pm mb-3 border-start border-4 border-success">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-uppercase small text-success fw-bold">
-              choice #{{ pref.rank }}
-            </span>
-            <div class="d-flex gap-1">
-              {% if not preferences_submitted %}
-              {% if pref.rank > 1 %}
-              <a href="{% url 'student_reorder_preference' pref.id 'up' %}" class="btn btn-ghost btn-sm py-0"
-                title="Move Up"><i class="bi bi-chevron-up"></i></a>
-              {% endif %}
-              <a href="{% url 'student_reorder_preference' pref.id 'down' %}" class="btn btn-ghost btn-sm py-0"
-                title="Move Down"><i class="bi bi-chevron-down"></i></a>
-              {% endif %}
+      <!-- RANKED ZONE -->
+      <h6 class="text-success fw-bold text-uppercase mb-2 small">Ranked Choices</h6>
+
+      <div id="rankedList" class="ranked-drop-zone mb-2"
+        style="min-height: 80px; border: 2px dashed #c3e6cb; border-radius: 10px; padding: 6px;">
+
+        {% for pref in preferences %}
+        {% if pref.rank > 0 %}
+        <div class="card pm mb-2 border-start border-4 border-success preference-item" data-id="{{ pref.id }}"
+          style="cursor: grab;">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-uppercase small text-success fw-bold rank-label">
+                choice #{{ pref.rank }}
+              </span>
+              <span class="text-secondary drag-handle" title="Drag to reorder">
+                <i class="bi bi-grip-vertical fs-5"></i>
+              </span>
             </div>
-          </div>
-
-          <h5 class="card-title mb-1">{{ pref.project.title }}</h5>
-          <p class="text-secondary mb-3 small">Supervisor: {{ pref.project.supervisor.first_name }} {{ pref.project.supervisor.last_name }}</p>
-
-          <div class="d-flex justify-content-end gap-2">
-            <a href="{% url 'student_project_detail' pref.project.id %}" class="btn btn-ghost btn-sm">Details</a>
-            {% if not preferences_submitted %}
-            <a href="{% url 'student_remove_preference' pref.id %}" class="btn btn-outline-danger btn-sm">Remove</a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      {% endfor %}
-
-
-      <!-- UNRANKED ITEMS (Rank == 0) -->
-      <!-- Show a header if we have unranked items -->
-
-      <h6 class="text-secondary fw-bold text-uppercase mt-4 mb-3 small">Unranked Selections</h6>
-
-      {% for pref in preferences %}
-      {% if pref.rank == 0 %}
-      <div class="card pm mb-3 bg-light border-dashed">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <h5 class="card-title mb-1">{{ pref.project.title }}</h5>
-              <p class="text-secondary small mb-2">Unranked</p>
-            </div>
-            <div class="d-flex gap-2">
+            <h5 class="card-title mb-1">{{ pref.project.title }}</h5>
+            <p class="text-secondary mb-2 small">
+              Supervisor: {{ pref.project.supervisor.first_name }} {{ pref.project.supervisor.last_name }}
+            </p>
+            <div class="d-flex justify-content-end gap-2">
+              <a href="{% url 'student_project_detail' pref.project.id %}"
+                class="btn btn-outline-secondary btn-sm">Details</a>
               {% if not preferences_submitted %}
-              <a href="{% url 'student_reorder_preference' pref.id 'up' %}" class="btn btn-primary btn-sm">Rank This
-                Project</a>
-              <a href="{% url 'student_remove_preference' pref.id %}" class="btn btn-outline-secondary btn-sm"><i
-                  class="bi bi-x"></i></a>
-              {% else %}
-              <span class="badge bg-secondary">Locked</span>
+              <a href="{% url 'student_remove_preference' pref.id %}" class="btn btn-outline-danger btn-sm">Remove</a>
               {% endif %}
             </div>
           </div>
         </div>
+        {% endif %}
+        {% endfor %}
+
+        <div id="rankedEmptyHint" class="text-center text-secondary small py-3">
+          Drag a project here to make it your 1st choice
+        </div>
+
       </div>
-      {% endif %}
-      {% empty %}
-      <!-- No preferences at all -->
-      {% endfor %}
 
+      <!-- UNRANKED ZONE -->
+      <h6 class="text-secondary fw-bold text-uppercase mt-4 mb-2 small">Unranked Selections</h6>
 
-      <!-- EMPTY STATE SLOTS (Visual only, to encourage filling up to 3) -->
+      <div id="unrankedList" class="unranked-drop-zone"
+        style="min-height: 70px; border: 2px dashed #dee2e6; border-radius: 10px; padding: 6px;">
+
+        {% for pref in preferences %}
+        {% if pref.rank == 0 %}
+        <div class="card pm mb-2 bg-light preference-item" data-id="{{ pref.id }}" style="cursor: grab;">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h5 class="card-title mb-1">{{ pref.project.title }}</h5>
+                <p class="text-secondary small mb-0">
+                  Supervisor: {{ pref.project.supervisor.first_name }} {{ pref.project.supervisor.last_name }}
+                </p>
+              </div>
+              <div class="d-flex gap-2 align-items-center">
+                {% if not preferences_submitted %}
+                <span class="text-secondary drag-handle" title="Drag to rank">
+                  <i class="bi bi-grip-vertical fs-5"></i>
+                </span>
+                <a href="{% url 'student_remove_preference' pref.id %}" class="btn btn-outline-secondary btn-sm"><i
+                    class="bi bi-x"></i></a>
+                {% else %}
+                <span class="badge bg-secondary">Locked</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <div id="unrankedEmptyHint" class="text-center text-secondary small py-3">
+          No unranked projects
+        </div>
+
+      </div>
+
+      <!-- Add more -->
       {% if not preferences_submitted %}
-      <div class="mt-4 text-center">
-        <a href="{% url 'student_projects' %}" class="btn btn-outline-primary px-4">+ Select more projects</a>
+      <div class="mt-3 text-center">
+        <a href="{% url 'student_projects' %}" class="btn btn-outline-secondary px-4">+ Select more projects</a>
       </div>
       {% endif %}
 
     </div>
   </div>
 
-  <!-- NOTE -->
-  <p class="text-secondary small mb-4">
-    <strong>Note:</strong> You must select all 3 preferences before final submission.
+  <!-- Note -->
+  <p class="text-secondary small mb-4 text-center mt-3">
+    <strong>Note:</strong> You must rank all preferences before final submission.
   </p>
 
-  <!-- ACTION BUTTONS -->
+  <!-- Action buttons -->
   <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mb-3">
     {% if preferences_submitted %}
     <div class="alert alert-success px-5 py-2">
       <i class="bi bi-check-circle-fill me-2"></i> Preferences Submitted (Locked)
     </div>
     {% else %}
-    <a href="{% url 'student_save_draft' %}" class="btn btn-ghost px-4 py-2">
+    <a href="{% url 'student_save_draft' %}" class="btn btn-outline-secondary px-4 py-2">
       Save as Draft
     </a>
     <form method="POST" action="{% url 'student_submit_preferences' %}">
@@ -126,7 +150,7 @@
     {% endif %}
   </div>
 
-  <!-- STATUS FOOTER -->
+  <!-- Status footer -->
   <div class="text-center small">
     <span class="me-2">💾 Status:</span>
     {% if preferences_submitted %}
@@ -136,9 +160,7 @@
     {% endif %}
   </div>
 
-
-
-  <!-- Optional explanation -->
+  <!-- How ranking works -->
   <div class="mt-4 small text-secondary text-center">
     <p class="mb-1 fw-semibold">How ranking works</p>
     <p class="mb-0">
@@ -149,5 +171,115 @@
   </div>
 
 </div>
+
+<!-- Sortable JS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    {% if preferences_submitted %}
+    return; // Locked — no interaction
+    {% endif %}
+
+    const rankedList = document.getElementById('rankedList');
+    const unrankedList = document.getElementById('unrankedList');
+    const toast = document.getElementById('saveToast');
+    const MAX_RANKED = 3;
+    const CSRF = '{{ csrf_token }}';
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+
+    function showToast() {
+      toast.style.opacity = '1';
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2200);
+    }
+
+    function updateLabels() {
+      // Update ranked labels
+      rankedList.querySelectorAll('.preference-item').forEach((item, i) => {
+        const label = item.querySelector('.rank-label');
+        if (label) label.innerText = 'choice #' + (i + 1);
+        // Ensure ranked styling
+        item.classList.add('border-start', 'border-4', 'border-success');
+        item.classList.remove('bg-light');
+      });
+
+      // Strip rank styling from unranked items
+      unrankedList.querySelectorAll('.preference-item').forEach(item => {
+        const label = item.querySelector('.rank-label');
+        if (label) label.innerText = 'Unranked';
+        item.classList.remove('border-start', 'border-4', 'border-success');
+        item.classList.add('bg-light');
+      });
+
+      // Show/hide empty hints
+      document.getElementById('rankedEmptyHint').style.display =
+        rankedList.querySelectorAll('.preference-item').length > 0 ? 'none' : 'block';
+      document.getElementById('unrankedEmptyHint').style.display =
+        unrankedList.querySelectorAll('.preference-item').length > 0 ? 'none' : 'block';
+    }
+
+    function persistOrder() {
+      const orderedIds = [...rankedList.querySelectorAll('.preference-item')]
+        .map(el => el.getAttribute('data-id'));
+
+      fetch("{% url 'ajax_update_preference_order' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': CSRF
+        },
+        body: JSON.stringify({ ordered_ids: orderedIds })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            showToast();
+            // Wait till next step in sequence happens to see this, usually immediate.
+          } else {
+            alert('Could not save order: ' + (data.error || 'Unknown error'));
+          }
+        })
+        .catch(err => console.error('Save error:', err));
+    }
+
+    // ── onEnd: runs after every drag regardless of which list ─────────────────
+
+    function onDragEnd(evt) {
+      // Cap ranked zone at MAX_RANKED — push overflow back to unranked
+      const rankedItems = rankedList.querySelectorAll('.preference-item');
+      if (rankedItems.length > MAX_RANKED) {
+        // Move the most-recently added item (last in list) back to unranked
+        unrankedList.appendChild(rankedItems[rankedItems.length - 1]);
+      }
+
+      updateLabels();
+      persistOrder();
+    }
+
+    // ── Create Sortable instances (shared group = cross-list drag enabled) ─────
+
+    Sortable.create(rankedList, {
+      group: 'prefs',
+      filter: '.btn',
+      preventOnFilter: false,
+      animation: 150,
+      ghostClass: 'opacity-50',
+      onEnd: onDragEnd
+    });
+
+    Sortable.create(unrankedList, {
+      group: 'prefs',
+      filter: '.btn',
+      preventOnFilter: false,
+      animation: 150,
+      ghostClass: 'opacity-50',
+      onEnd: onDragEnd
+    });
+
+    // Set initial hint visibility
+    updateLabels();
+  });
+</script>
 
 {% endblock %}

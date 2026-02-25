@@ -70,16 +70,16 @@
 
         <div class="d-grid gap-3">
 
-          <a class="btn btn-outline" href="{% url 'student_profile' %}">
+          <a class="btn btn-outline-secondary" href="{% url 'student_profile' %}">
             Complete Your Profile
           </a>
 
-          <a class="btn btn-outline" href="{% url 'student_projects' %}">
+          <a class="btn btn-outline-secondary" href="{% url 'student_projects' %}">
             Browse Available Projects
           </a>
 
           {% if student.preferences_submitted %}
-          <a class="btn btn-outline" href="{% url 'student_preferences' %}">
+          <a class="btn btn-outline-secondary" href="{% url 'student_preferences' %}">
             Update Preferences
           </a>
           {% else %}

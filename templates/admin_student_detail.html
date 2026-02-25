@@ -85,7 +85,7 @@
                     <h5>{{ student.allocated_project.title }}</h5>
                     <p class="text-muted mb-2">Supervisor: {{ student.allocated_project.supervisor.first_name }} {{ student.allocated_project.supervisor.last_name }}</p>
                     <a href="{% url 'admin_project_detail' student.allocated_project.id %}"
-                        class="btn btn-sm btn-outline-success">View Project</a>
+                        class="btn btn-sm btn-outline-secondary">View Project</a>
                 </div>
             </div>
             {% endif %}

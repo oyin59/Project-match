@@ -7,7 +7,7 @@
 
     <!-- Back link -->
     <div class="mb-3">
-        <a href="{% url 'supervisor_projects' %}" class="btn btn-ghost">
+        <a href="{% url 'supervisor_projects' %}" class="btn btn-outline-secondary">
             &larr; Back to all projects
         </a>
     </div>
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="d-grid gap-2 mt-4">
-                    <a href="{% url 'supervisor_edit_project' project.id %}" class="btn btn-primary">
+                    <a href="{% url 'supervisor_edit_project' project.id %}" class="btn btn-gradient">
                         Edit Project
                     </a>
                     <button class="btn btn-outline-danger" disabled>Delete Project</button>

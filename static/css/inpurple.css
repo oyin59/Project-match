@@ -132,30 +132,69 @@ h1, h2, h3, h4 {
   border-bottom: 1px solid var(--pm-border);
 }
 
-/* ---------- BUTTONS ---------- */
+/* ---------- BUTTONS (3D STYLE) ---------- */
 .btn-gradient {
-  background: var(--pm-brand);
+  background: linear-gradient(135deg, var(--pm-brand-alt), var(--pm-brand-dark));
   color: #fff;
-  border-radius: 999px;
+  border-radius: 12px;
   padding: .6rem 1.6rem;
   font-weight: 700;
   border: none;
-  box-shadow: var(--pm-shadow-raised);
-  transition: .2s;
+  box-shadow: 0 4px 0 #4a1853, 0 5px 10px rgba(0,0,0,0.2) !important; /* solid bottom & shadow */
+  transition: all 0.1s ease;
+  position: relative;
 }
 
 .btn-gradient:hover {
-  transform: translateY(-2px);
-  background: var(--pm-brand-dark);
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #4a1853, 0 3px 6px rgba(0,0,0,0.2) !important;
+  color: #fff;
+}
+
+.btn-gradient:active {
+  transform: translateY(4px);
+  box-shadow: none !important;
+}
+
+.btn-outline-secondary {
+  background: var(--pm-bg-card);
+  color: var(--pm-text-secondary);
+  border-radius: 12px;
+  padding: .6rem 1.6rem;
+  font-weight: 600;
+  border: 1px solid #d4c5d9;
+  box-shadow: 0 4px 0 #d4c5d9, 0 5px 10px rgba(0,0,0,0.05) !important;
+  transition: all 0.1s ease;
+  position: relative;
+}
+
+.btn-outline-secondary:hover {
+  background: var(--pm-bg-soft);
+  color: var(--pm-text-primary);
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #d4c5d9, 0 3px 6px rgba(0,0,0,0.05) !important;
+}
+
+.btn-outline-secondary:active {
+  transform: translateY(4px);
+  box-shadow: none !important;
 }
 
 .btn-ghost {
-  background: var(--pm-bg-soft);
+  background: transparent;
+  color: var(--pm-brand);
   border-radius: 12px;
   padding: .55rem 1.3rem;
-  border: none;
-  box-shadow: var(--pm-shadow-inset);
+  border: 2px solid transparent;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
+
+.btn-ghost:hover {
+  background: var(--pm-bg-soft);
+  transform: translateY(-2px);
+}
+
 
 /* ---------- FORMS (INSET) ---------- */
 .form-control,
