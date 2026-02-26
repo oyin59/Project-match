@@ -1,0 +1,35 @@
+# ProjectMatch Test Accounts
+
+Here are the exact credentials from the database. You can use these to log into the different sections of the website to test functionality.
+
+## Admin Account
+**Email:** grace.adebayo@projectmatch.py
+**Password:** admin123
+
+## Supervisor Accounts
+All supervisors share the same password: **supervisor123**
+
+- michael.johnson@projectmatch.py
+- fatima.bello@projectmatch.py
+- daniel.okonkwo@projectmatch.py
+- sarah.williams@projectmatch.py
+- james.patel@projectmatch.py
+
+## Student Accounts
+All students share the same password: **student123**
+
+- oyinlola.akinwale@projectmatch.py
+- david.mensah@projectmatch.py
+- aisha.mohammed@projectmatch.py
+- chinedu.eze@projectmatch.py
+- sarah.thompson@projectmatch.py
+- daniel.kim@projectmatch.py
+- blessing.adeyemi@projectmatch.py
+- joshua.brown@projectmatch.py
+- fatou.ndiaye@projectmatch.py
+- ibrahim.hassan@projectmatch.py
+- emily.clarke@projectmatch.py
+- tunde.bakare@projectmatch.py
+- priya.sharma@projectmatch.py
+- ahmed.ali@projectmatch.py
+- jessica.white@projectmatch.py
