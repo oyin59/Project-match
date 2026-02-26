@@ -186,7 +186,7 @@
     const MAX_RANKED = 3;
     const CSRF = '{{ csrf_token }}';
 
-    // ── Helpers ────────────────────────────────────────────────────────────────
+    // Helpers 
 
     function showToast() {
       toast.style.opacity = '1';
@@ -243,8 +243,7 @@
         .catch(err => console.error('Save error:', err));
     }
 
-    // ── onEnd: runs after every drag regardless of which list ─────────────────
-
+    //  onEnd: runs after every drag regardless of which list 
     function onDragEnd(evt) {
       // Cap ranked zone at MAX_RANKED — push overflow back to unranked
       const rankedItems = rankedList.querySelectorAll('.preference-item');
@@ -257,7 +256,7 @@
       persistOrder();
     }
 
-    // ── Create Sortable instances (shared group = cross-list drag enabled) ─────
+    // Create Sortable instances (shared group = cross-list drag enabled) 
 
     Sortable.create(rankedList, {
       group: 'prefs',
