@@ -282,6 +282,14 @@ def student_submit_preferences(request):
         student.preferences_submitted_at = timezone.now()
         student.save()
         
+        # Trigger Notification
+        from .models import Notification
+        Notification.objects.create(
+            student_recipient=student,
+            message="Your project preferences have been successfully submitted and locked.",
+            link="/student/allocation/"
+        )
+        
         messages.success(request, "Your preferences have been successfully submitted!")
         return redirect("student_dashboard")
         
@@ -1104,6 +1112,20 @@ def admin_manual_allocations(request):
             if project.quota > project.allocated_students.count():
                 student.allocated_project = project
                 student.save()
+                
+                # Trigger Notifications
+                from .models import Notification
+                Notification.objects.create(
+                    student_recipient=student,
+                    message=f"You have been manually allocated to project: {project.title}",
+                    link="/student/allocation/"
+                )
+                Notification.objects.create(
+                    supervisor_recipient=project.supervisor,
+                    message=f"Admin manually assigned {student.first_name} {student.last_name} to your project: {project.title}",
+                    link=f"/supervisor/project/{project.id}/"
+                )
+                
                 messages.success(request, f"Successfully allocated {student} to {project.title}")
             else:
                 messages.error(request, f"{project.title} has reached its quota limit.")

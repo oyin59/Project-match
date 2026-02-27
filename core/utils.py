@@ -118,6 +118,22 @@ def run_allocation_algorithm():
             student.allocated_project_id = best_project_id
             student.save()
             
+            # Fetch project for notification references
+            project = project_states[best_project_id]['obj']
+            
+            # Trigger Notifications
+            from .models import Notification
+            Notification.objects.create(
+                student_recipient=student,
+                message=f"You have been successfully allocated to project: {project.title}",
+                link="/student/allocation/"
+            )
+            Notification.objects.create(
+                supervisor_recipient=project.supervisor,
+                message=f"The automated algorithm assigned {student.first_name} {student.last_name} to your project: {project.title}",
+                link=f"/supervisor/project/{project.id}/"
+            )
+            
             # Update local state
             project_states[best_project_id]['filled'] += 1
             allocated_count += 1
