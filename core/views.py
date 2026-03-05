@@ -1108,13 +1108,26 @@ def admin_manual_allocations(request):
             student = get_object_or_404(Student, id=student_id)
             project = get_object_or_404(Project, id=project_id)
             
+            # Check if student is already in this project
+            if student.allocated_project == project:
+                messages.info(request, f"{student} is already allocated to {project.title}.")
+                return redirect("admin_manual_allocations")
+
             # Verify project has space
             if project.quota > project.allocated_students.count():
+                old_project = student.allocated_project
                 student.allocated_project = project
                 student.save()
                 
                 # Trigger Notifications
                 from .models import Notification
+                if old_project:
+                    Notification.objects.create(
+                        supervisor_recipient=old_project.supervisor,
+                        message=f"Admin reallocated {student.first_name} {student.last_name} away from your project: {old_project.title}",
+                        link=f"/supervisor/dashboard/"
+                    )
+                    
                 Notification.objects.create(
                     student_recipient=student,
                     message=f"You have been manually allocated to project: {project.title}",
@@ -1136,12 +1149,9 @@ def admin_manual_allocations(request):
 
     # GET: Prepare Lists
     
-    # 1. Unallocated Students (Profile done, Not allocated)
-    # User feedback: School system has 2 chances. Manual allocation is for edge cases (forgot to submit etc).
-    # So show ALL unallocated students, regardless of preferences submitted.
-    unallocated_students = Student.objects.filter(
-        allocated_project__isnull=True
-    ).order_by('-preferences_submitted', 'last_name')
+    # 1. All Students
+    # Including already allocated students so the admin can re-allocate them as an edge case.
+    all_students = Student.objects.select_related('allocated_project').all().order_by('allocated_project', '-preferences_submitted', 'last_name')
     
     # 2. Available Projects (Quota > Count)
     # Annotate with count
@@ -1151,7 +1161,7 @@ def admin_manual_allocations(request):
     
     return render(request, "admin_manual_allocations.html", {
         "role": "admin",
-        "unallocated_students": unallocated_students,
+        "all_students": all_students,
         "available_projects": available_projects
     })
 
