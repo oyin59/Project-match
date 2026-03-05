@@ -1166,6 +1166,47 @@ def admin_manual_allocations(request):
     })
 
 
+def admin_notify_students(request):
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+        
+    if request.method == "POST":
+        from .models import Student, Notification
+        
+        students = Student.objects.select_related('allocated_project', 'profile').all()
+        count = 0
+        for student in students:
+            link = "/student/dashboard/"
+            if student.allocated_project:
+                 msg = "If you have been allocated a project, you will see your supervisor and project title on your dashboard."
+            else:
+                 has_profile = False
+                 try:
+                     has_profile = student.profile.profile_status == "SUBMITTED"
+                 except Exception:
+                     pass
+                 
+                 has_prefs = student.preferences_submitted
+                 
+                 if not has_profile or not has_prefs:
+                     msg = "kindly fill and or submit your profile and preference"
+                     link = "/student/profile/"
+                 else:
+                     msg = "If you are currently unallocated, please log in to review available projects or contact the module team."
+                     link = "/student-projects/"
+                     
+            Notification.objects.create(
+                student_recipient=student,
+                message=msg,
+                link=link
+            )
+            count += 1
+            
+        messages.success(request, f"Successfully sent notifications to {count} students.")
+        
+    return redirect("admin_allocations")
+
+
 def mark_notifications_read(request):
     """Marks all unread notifications for the current user as read."""
     if request.method == "POST":
