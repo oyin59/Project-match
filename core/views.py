@@ -283,12 +283,34 @@ def student_submit_preferences(request):
         student.save()
         
         # Trigger Notification
-        from .models import Notification
+        from .models import Notification, Admin
         Notification.objects.create(
             student_recipient=student,
             message="Your project preferences have been successfully submitted and locked.",
             link="/student/allocation/"
         )
+        
+        # Notify Admins
+        admins = Admin.objects.all()
+        for admin in admins:
+            Notification.objects.create(
+                admin_recipient=admin,
+                message=f"Student {student.first_name} {student.last_name} has submitted their project preferences.",
+                link=f"/admin-student/{student.id}/"
+            )
+            
+        # Notify Supervisors of Ranked Projects
+        ranked_prefs = StudentPreference.objects.filter(student=student, rank__gt=0).select_related('project__supervisor')
+        supervisors_notified = set()
+        for pref in ranked_prefs:
+            supervisor = pref.project.supervisor
+            if supervisor and supervisor.id not in supervisors_notified:
+                Notification.objects.create(
+                    supervisor_recipient=supervisor,
+                    message=f"Student {student.first_name} {student.last_name} has submitted their preferences, which includes your project.",
+                    link="/supervisor/interested-students/"
+                )
+                supervisors_notified.add(supervisor.id)
         
         messages.success(request, "Your preferences have been successfully submitted!")
         return redirect("student_dashboard")
