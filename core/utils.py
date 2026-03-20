@@ -7,8 +7,15 @@ def calculate_prerequisite_match(student_skills: str, project_prerequisites: str
     if not project_prerequisites:
         return 0, 0
 
+    import re
     # Parse and normalize prerequisites
-    prereqs = [p.strip().lower() for p in project_prerequisites.split(',') if p.strip()]
+    raw_prereqs = re.split(r'[,\n]', project_prerequisites)
+    prereqs = []
+    for p in raw_prereqs:
+        cleaned = re.sub(r'^[\-\*\s]+', '', p.strip()).lower()
+        if cleaned:
+            prereqs.append(cleaned)
+
     if not prereqs:
         return 0, 0
 
@@ -16,7 +23,12 @@ def calculate_prerequisite_match(student_skills: str, project_prerequisites: str
         return 0, len(prereqs)
 
     # Parse and normalize skills
-    skills = set(s.strip().lower() for s in student_skills.split(',') if s.strip())
+    raw_skills = re.split(r'[,\n]', student_skills)
+    skills = set()
+    for s in raw_skills:
+        cleaned = re.sub(r'^[\-\*\s]+', '', s.strip()).lower()
+        if cleaned:
+            skills.add(cleaned)
 
     # Count matches
     matched_count = sum(1 for p in prereqs if p in skills)
