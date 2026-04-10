@@ -59,6 +59,15 @@ def home(request):
     return render(request, "home.html", {"role": "guest", "error": error})
 
 
+def logout_view(request):
+    """
+    Logs out the user by completely flushing the session data.
+    """
+    request.session.flush()
+    messages.success(request, "You have been successfully logged out.")
+    return redirect("home")
+
+
 def student_dashboard(request):
     """
     Student dashboard:
