@@ -44,6 +44,22 @@ body {
   background-attachment: fixed;
 }
 
+/* ---------- PAGE TRANSITIONS ---------- */
+@keyframes pmFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main.container {
+  animation: pmFadeIn 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
 h1, h2, h3, h4 {
   font-weight: 700;
 }
@@ -76,6 +92,12 @@ h1, h2, h3, h4 {
   padding: 1.6rem;
   border: none;
   box-shadow: var(--pm-shadow-raised);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card.pm:hover {
+  transform: translateY(-4px);
+  box-shadow: 10px 10px 20px rgba(0,0,0,0.15), -10px -10px 20px rgba(255,255,255,1);
 }
 
 /* Inset card (filters, panels) */
@@ -225,12 +247,16 @@ h1, h2, h3, h4 {
 
 /* ---------- SCROLLBAR ---------- */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--pm-brand-alt);
-  border-radius: 5px;
+  background: var(--pm-brand-light);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--pm-brand);
+  background: var(--pm-brand-alt);
 }
