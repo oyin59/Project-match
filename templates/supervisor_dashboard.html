@@ -15,38 +15,47 @@
   <!-- OVERVIEW -->
   <div class="col-12">
     <div class="card pm p-4">
-      <h5 class="card-title pm-title mb-3">Overview</h5>
+      <h5 class="card-title pm-title mb-3"><i class="bi bi-graph-up me-2"></i>Overview</h5>
 
       <div class="row text-center g-3">
 
         <div class="col-md-3">
           <div class="p-3 border rounded">
-            <small class="text-secondary d-block">Total Projects</small>
+            <small class="text-secondary d-block"><i class="bi bi-card-checklist text-primary me-1"></i>Total Projects</small>
             <div class="fs-4 fw-semibold">{{ total_projects }}</div>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="p-3 border rounded">
-            <small class="text-secondary d-block">Total Quota</small>
+            <small class="text-secondary d-block"><i class="bi bi-people text-success me-1"></i>Total Quota</small>
             <div class="fs-4 fw-semibold">{{ total_quota }} Students</div>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="p-3 border rounded">
-            <small class="text-secondary d-block">Allocated</small>
+            <small class="text-secondary d-block"><i class="bi bi-check-circle text-info me-1"></i>Allocated</small>
             <div class="fs-4 fw-semibold">{{ total_allocated }}</div>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="p-3 border rounded">
-            <small class="text-secondary d-block">Interested</small>
+            <small class="text-secondary d-block"><i class="bi bi-star text-warning me-1"></i>Interested</small>
             <div class="fs-4 fw-semibold">{{ interested_student_count }}</div>
           </div>
         </div>
 
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-6 offset-md-3 text-center">
+          <h6 class="text-secondary small mb-3">Project Capacity</h6>
+          <div style="position: relative; height: 160px; width: 100%;">
+            <canvas id="supervisorProjectChart"></canvas>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -54,7 +63,7 @@
   <!-- MY PROJECTS -->
   <div class="col-12">
     <div class="card pm p-4">
-      <h5 class="card-title pm-title mb-3">My Projects</h5>
+      <h5 class="card-title pm-title mb-3"><i class="bi bi-list-task me-2"></i>My Projects</h5>
 
       <table class="table align-middle mb-3">
         <thead>
@@ -71,17 +80,31 @@
           <tr>
             <td>{{ project.title }}</td>
             <td>{{ project.quota }}</td>
-            <td>{{ project.interested_count }}</td>
-            <td>{{ project.allocated_count }} / {{ project.quota }}</td>
             <td>
-              <a href="{% url 'supervisor_edit_project' project.id %}" class="btn btn-sm btn-outline-secondary">
+              {{ project.interested_count }}
+              <i class="bi bi-info-circle text-muted ms-1 small" data-bs-toggle="tooltip" title="Students who ranked this in top 3"></i>
+            </td>
+            <td style="min-width: 150px;">
+              <div class="d-flex align-items-center">
+                <span class="me-2 small fw-semibold">{{ project.allocated_count }} / {{ project.quota }}</span>
+                <div class="progress flex-grow-1" style="height: 6px;">
+                  {% widthratio project.allocated_count project.quota 100 as percentage %}
+                  <div class="progress-bar {% if percentage == '100' or percentage == 100 %}bg-danger{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ percentage }}%"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <a href="{% url 'supervisor_edit_project' project.id %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
                 Edit
               </a>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="text-center text-muted">No projects created yet.</td>
+            <td colspan="5" class="text-center py-5">
+              <i class="bi bi-folder-x fs-1 text-muted d-block mb-3 opacity-50"></i>
+              <span class="text-muted small">No projects created yet.</span>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -98,20 +121,50 @@
   <!-- RECENT ACTIVITY -->
   <div class="col-12">
     <div class="card pm p-4">
-      <h5 class="card-title pm-title mb-3">Recent Activity</h5>
-      <ul class="mb-0 small text-secondary">
+      <h5 class="card-title pm-title mb-3"><i class="bi bi-clock-history me-2"></i>Recent Activity</h5>
+      <ul class="mb-0 small text-secondary list-unstyled">
         {% for project in recent_projects %}
-        <li class="mb-2">
-          You created <b>"{{ project.title }}"</b>
-          <span class="text-muted ms-1">- {{ project.created_at|timesince }} ago</span>
+        <li class="mb-3 border-bottom pb-2 border-light">
+          <i class="bi bi-plus-circle text-success me-2"></i>You created <b>"{{ project.title }}"</b>
+          <span class="text-muted ms-1 badge bg-light text-dark fw-normal">- {{ project.created_at|timesince }} ago</span>
         </li>
         {% empty %}
-        <li>No recent activity to show.</li>
+        <li class="text-center py-4">
+          <i class="bi bi-inbox fs-3 d-block text-muted opacity-50 mb-2"></i>
+          No recent activity to show.
+        </li>
         {% endfor %}
       </ul>
     </div>
   </div>
 
 </div>
+
+<!-- ChartJS Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const pmGray = '#e9ecef';
+    const pmPurple = getComputedStyle(document.documentElement).getPropertyValue('--pm-purple').trim() || '#6f42c1';
+
+    const totalQuota = parseInt("{{ total_quota|default:0 }}");
+    const totalAllocated = parseInt("{{ total_allocated|default:0 }}");
+    const availableSpaces = Math.max(0, totalQuota - totalAllocated);
+
+    const ctxProject = document.getElementById('supervisorProjectChart').getContext('2d');
+    new Chart(ctxProject, {
+      type: 'doughnut',
+      data: {
+        labels: ['Allocated', 'Available Spaces'],
+        datasets: [{
+          data: [totalAllocated, availableSpaces],
+          backgroundColor: [pmPurple, pmGray],
+          borderWidth: 0
+        }]
+      },
+      options: { cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }, maintainAspectRatio: false }
+    });
+  });
+</script>
 
 {% endblock %}
