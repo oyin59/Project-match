@@ -17,14 +17,6 @@
     </div>
   </div>
 
-  {% if messages %}
-  {% for message in messages %}
-  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endfor %}
-  {% endif %}
 
   <form method="POST" action="{% url 'admin_manual_allocations' %}">
     {% csrf_token %}
@@ -47,8 +39,7 @@
                     <span class="fw-medium">{{ student.first_name }} {{ student.last_name }}</span>
                     {% if student.allocated_project %}
                     <span class="badge bg-warning bg-opacity-25 text-dark border border-warning"
-                      title="{{ student.allocated_project.title }}">Reallocate: {{
-                      student.allocated_project.title|truncatechars:20 }}</span>
+                      title="{{ student.allocated_project.title }}">Reallocate: {{student.allocated_project.title|truncatechars:20 }}</span>
                     {% else %}
                     <span class="badge bg-light text-dark border">Unallocated</span>
                     {% endif %}
