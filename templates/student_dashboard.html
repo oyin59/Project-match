@@ -24,7 +24,7 @@
     <div class="card pm h-100">
       <div class="card-body">
 
-        <h5 class="card-title pm-title mb-3">Project Selection Status</h5>
+        <h5 class="card-title pm-title mb-3"><i class="bi bi-info-circle me-2"></i>Project Selection Status</h5>
 
         <p class="mb-1">
           Preferences:
@@ -33,20 +33,21 @@
           </span>
         </p>
 
-        <p class="mb-3">
+        <p class="mb-3 d-flex align-items-center">
           Allocation:
-          <span class="fw-semibold" style="color: var(--pm-accent-gold);">
-            {% if allocated_project %}
-            ✅ Allocated
-            {% else %}
-            ⏳ Pending
-            {% endif %}
-          </span>
+          {% if allocated_project %}
+          <span class="badge bg-success rounded-pill ms-2 px-3"><i class="bi bi-check-circle me-1"></i>Allocated</span>
+          {% else %}
+          <span class="badge bg-warning text-dark rounded-pill ms-2 px-3"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+          {% endif %}
         </p>
 
         <div class="pm-divider"></div>
 
-        <p class="text-secondary mb-1 small">Allocated Project</p>
+        <p class="text-secondary mb-1 small">
+          Allocated Project
+          <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="The final project you have been matched with by the Fairness Engine."></i>
+        </p>
         <p class="mb-0">
           {% if allocated_project %}
           {{ allocated_project.title }}<br>
@@ -66,25 +67,25 @@
     <div class="card pm h-100">
       <div class="card-body">
 
-        <h5 class="card-title pm-title mb-3">Quick Actions</h5>
+        <h5 class="card-title pm-title mb-3"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
 
         <div class="d-grid gap-3">
 
           <a class="btn btn-outline-secondary" href="{% url 'student_profile' %}">
-            Complete Your Profile
+            <i class="bi bi-person-lines-fill me-1"></i> Complete Your Profile
           </a>
 
           <a class="btn btn-outline-secondary" href="{% url 'student_projects' %}">
-            Browse Available Projects
+            <i class="bi bi-search me-1"></i> Browse Available Projects
           </a>
 
           {% if student.preferences_submitted %}
           <a class="btn btn-outline-secondary" href="{% url 'student_preferences' %}">
-            Update Preferences
+            <i class="bi bi-pencil-square me-1"></i> Update Preferences
           </a>
           {% else %}
           <a class="btn btn-gradient" href="{% url 'student_preferences' %}">
-            Submit Preferences
+            <i class="bi bi-check2-square me-1"></i> Submit Preferences
           </a>
           {% endif %}
 
@@ -98,11 +99,11 @@
     <div class="card pm">
       <div class="card-body">
 
-        <h5 class="card-title pm-title mb-3">Important Dates</h5>
+        <h5 class="card-title pm-title mb-3"><i class="bi bi-calendar-event me-2"></i>Important Dates</h5>
 
         <ul class="list-unstyled mb-0">
-          <li class="mb-1 text-secondary">• Allocation Date: TBC</li>
-          <li class="text-secondary">• Preference Deadline: TBC</li>
+          <li class="mb-1 text-secondary"><i class="bi bi-calendar-check me-2"></i>Allocation Date: TBC</li>
+          <li class="text-secondary"><i class="bi bi-calendar-x me-2"></i>Preference Deadline: TBC</li>
         </ul>
 
       </div>
