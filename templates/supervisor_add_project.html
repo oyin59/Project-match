@@ -38,6 +38,9 @@
           Project title <span style="color: var(--pm-purple);">*</span>
         </label>
         {{ form.title }}
+        {% if form.title.errors %}
+          <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+        {% endif %}
       </div>
 
       <div class="mb-3">
@@ -45,6 +48,9 @@
           Project description <span style="color: var(--pm-purple);">*</span>
         </label>
         {{ form.description }}
+        {% if form.description.errors %}
+          <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+        {% endif %}
       </div>
 
       <!-- Quota -->
@@ -57,6 +63,9 @@
             {{ form.quota }}
             <span class="input-group-text">students</span>
           </div>
+          {% if form.quota.errors %}
+            <div class="text-danger small mt-1">{{ form.quota.errors.0 }}</div>
+          {% endif %}
         </div>
       </div>
 

@@ -124,14 +124,45 @@
     </div>
   </div>
 
-  <!-- Recent activity -->
-  <div class="mb-2 fw-semibold text-secondary">Recent activity</div>
-  <div class="card pm p-4">
-    <ul class="mb-0 small text-secondary">
-      <li>{{total_preferences_submitted}} student preferences submitted</li>
-      <li>{{total_projects_added}} new project added by supervisors</li>
-      <li>{{total_allocations}} Allocation run completed</li>
-    </ul>
+  <!-- Recent activity (Audit Log) -->
+  <div class="mb-2 fw-semibold text-secondary">System Audit Trail</div>
+  <div class="card pm p-0 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Time</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Details</th>
+            <th class="pe-4 text-center">Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in system_logs %}
+          <tr>
+            <td class="ps-4 text-secondary">{{ log.timestamp|date:"d M, H:i" }}</td>
+            <td class="fw-medium">{{ log.user_description }}</td>
+            <td>{{ log.action }}</td>
+            <td class="text-secondary small">{{ log.details|truncatechars:60 }}</td>
+            <td class="pe-4 text-center">
+              {% if log.log_level == "ERROR" %}
+                <span class="badge bg-danger">Error</span>
+              {% elif log.log_level == "WARNING" %}
+                <span class="badge bg-warning text-dark">Warning</span>
+              {% else %}
+                <span class="badge bg-info">Info</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-4 text-secondary">No recent system activity recorded.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

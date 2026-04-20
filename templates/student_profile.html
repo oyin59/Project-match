@@ -26,6 +26,11 @@
 
       <label class="form-label">Student ID</label>
       {{ form.student_number }}
+      {% if form.student_number.errors %}
+        <div class="text-danger small mt-1">
+          {{ form.student_number.errors.0 }}
+        </div>
+      {% endif %}
 
       <label class="form-label mt-3">Course</label>
       {{ form.course }}

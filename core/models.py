@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 
 
 class Admin(models.Model):
@@ -62,7 +63,13 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     prerequisites = models.CharField(max_length=255, blank=True)
-    quota = models.IntegerField(default=1)
+    quota = models.IntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(50)
+        ]
+    )
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
@@ -101,7 +108,16 @@ class StudentProfileDetails(models.Model):
         related_name="profile"
     )
 
-    student_number = models.CharField(max_length=50, blank=True)
+    student_number = models.CharField(
+        max_length=15, 
+        blank=True,
+        validators=[
+            RegexValidator(
+                regex=r'^\d{8,12}$',
+                message="Student ID must be numeric and between 8 to 12 digits."
+            )
+        ]
+    )
 
 
     department = models.ForeignKey(
@@ -186,3 +202,23 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification: {self.message}"
+
+
+class AuditLog(models.Model):
+    LOG_LEVEL_CHOICES = [
+        ("INFO", "Info"),
+        ("WARNING", "Warning"),
+        ("ERROR", "Error"),
+    ]
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    user_description = models.CharField(max_length=255, help_text="e.g. Student (ID 210...), Admin, etc.")
+    action = models.CharField(max_length=255)
+    details = models.TextField(blank=True)
+    log_level = models.CharField(max_length=10, choices=LOG_LEVEL_CHOICES, default="INFO")
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"[{self.timestamp.strftime('%Y-%m-%d %H:%M')}] {self.user_description}: {self.action}"

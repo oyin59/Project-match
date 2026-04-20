@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from .models import (
     Student, Supervisor, Admin, Project,
     StudentProfileDetails, StudentModule, Module, Course,
-    StudentPreference
+    StudentPreference, AuditLog
 )
 from django.db.models import Count, Sum, F
 from django.db.models.functions import Coalesce
@@ -357,6 +357,13 @@ def student_profile(request):
 
             profile.save()
 
+            # Audit Log for Profile Submission
+            AuditLog.objects.create(
+                user_description=f"Student ({student.email})",
+                action="Profile Submitted" if "submit_profile" in request.POST else "Profile Draft Saved",
+                details=f"Student Number: {profile.student_number}, Course: {profile.course}"
+            )
+
             StudentModule.objects.filter(student=student).delete()
             for module_id in request.POST.getlist("modules"):
                 StudentModule.objects.create(
@@ -481,8 +488,8 @@ def supervisor_dashboard(request):
         "role": "supervisor",
         "supervisor": supervisor,
         "projects": supervisor.projects.annotate(
-            allocated_count=Count('allocated_students'),
-            interested_count=Count('studentpreference')
+            allocated_count=Count('allocated_students', distinct=True),
+            interested_count=Count('studentpreference', distinct=True)
         ),
         "total_projects": supervisor.projects.count(),
         "total_quota": supervisor.projects.aggregate(Sum('quota'))['quota__sum'] or 0,
@@ -539,6 +546,13 @@ def supervisor_add_project(request):
             supervisor_id = request.session.get("user_id")
             project.supervisor = get_object_or_404(Supervisor, id=supervisor_id)
             project.save()
+            
+            # Audit Log for Project Addition
+            AuditLog.objects.create(
+                user_description=f"Supervisor ({supervisor.email})",
+                action="Project Created",
+                details=f"Title: {project.title}, Quota: {project.quota}"
+            )
             return redirect("supervisor_dashboard")
     else:
         form = ProjectForm()
@@ -677,6 +691,9 @@ def admin_dashboard(request):
     total_filled_projects = projects_annotated.filter(num_allocated__gte=F('quota')).count()
     total_available_projects = projects_annotated.filter(num_allocated__lt=F('quota')).count()
 
+    # System Logs for Audit Trail
+    system_logs = AuditLog.objects.all()[:15]
+
     return render(request, "admin_dashboard.html", {
         "role": "admin",
         "total_students": total_students,
@@ -688,7 +705,8 @@ def admin_dashboard(request):
         "total_preferences_submitted": total_preferences_submitted,
         "total_projects_added": total_projects_added,
         "total_filled_projects": total_filled_projects,
-        "total_available_projects": total_available_projects
+        "total_available_projects": total_available_projects,
+        "system_logs": system_logs
     })
 
 
@@ -734,8 +752,8 @@ def admin_projects(request):
     if request.session.get("user_role") != "admin":
         return redirect("home")
     projects = Project.objects.select_related('supervisor').annotate(
-        allocated_count=Count('allocated_students'),
-        interested_count=Count('studentpreference')
+        allocated_count=Count('allocated_students', distinct=True),
+        interested_count=Count('studentpreference', distinct=True)
     ).order_by('title')
     query = request.GET.get('q','').strip()
     if query:
@@ -879,8 +897,17 @@ def admin_allocations(request):
              
              if count > 0:
                  messages.success(request, f"Allocation complete! {count} students were newly allocated.")
+                 log_action = "Success"
              else:
                  messages.info(request, "Algorithm ran, but no new allocations were made.")
+                 log_action = "No Changes"
+             
+             # Audit Log for Fairness Engine
+             AuditLog.objects.create(
+                 user_description="Administrator",
+                 action="Run Fairness Engine",
+                 details=f"Result: {log_action}, New Allocations: {count}, Weights: Pref({weight_preference}) Qual({weight_academic})"
+             )
                  
              return redirect("admin_allocations")
 
@@ -1171,6 +1198,13 @@ def admin_manual_allocations(request):
                 )
                 
                 messages.success(request, f"Successfully allocated {student} to {project.title}")
+                
+                # Audit Log for Manual Allocation
+                AuditLog.objects.create(
+                    user_description="Administrator",
+                    action="Manual Allocation",
+                    details=f"Assigned {student.email} to project: {project.title}"
+                )
             else:
                 messages.error(request, f"{project.title} has reached its quota limit.")
         else:
