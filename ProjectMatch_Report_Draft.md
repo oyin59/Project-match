@@ -85,6 +85,7 @@ ProjectMatch bridges this gap by integrating both the data collection interface 
 |---|---|---|---|---|
 | Google Forms / Sheets | Ad-hoc survey combination | Fast to set up | No matching capability | Fully integrated engine |
 | Oracle Campus | ERP Module | Highly secure / scaled | Slow, bloated UI | Lightweight, custom built |
+| Aston FYP Tool | Institutional web form | University-specific, familiar to students | Limited matching logic; no automated allocation | Adds automated Fairness Engine and RBAC |
 
 📊 Table 2.2 — Algorithm Comparison
 | Algorithm | Type | Strengths | Limitations | Relevance to ProjectMatch |
@@ -94,13 +95,13 @@ ProjectMatch bridges this gap by integrating both the data collection interface 
 | Fairness Engine | Heuristic | Fast, balances constraints | Occasional manual edge cases | Core of this application |
 
 2.1 Existing Project Allocation Systems
-Many institutions currently rely on general-purpose data collection tools, such as Microsoft Forms or Google Forms, to gather student preferences. While accessible, these tools lack built-in validation for supervisor constraints, meaning administrators must manually cross-reference data against available project quotas in spreadsheets. On the other end of the spectrum, large-scale Enterprise Resource Planning (ERP) systems (such as SAP or Oracle campuses) offer robust allocation features but are often prohibitively expensive, overly complex, and not tailored to the specific nuances of final-year academic projects, which require careful consideration of prerequisite skills. ProjectMatch aims for the middle ground: a bespoke, lightweight application that is specifically tuned to the academic workflow without the bloat of an ERP. While these institutional tools represent the current state of practice, the algorithmic approaches used to resolve allocation conflicts deserve closer examination.
+Many institutions currently rely on general-purpose data collection tools, such as Microsoft Forms or Google Forms, to gather student preferences. While accessible, these tools lack built-in validation for supervisor constraints, meaning administrators must manually cross-reference data against available project quotas in spreadsheets. The Aston University FYP tool (cs.aston.ac.uk/FYP) represents a university-specific improvement, providing a structured submission interface. However, it lacks an automated matching algorithm, meaning allocation still depends on manual administrative effort. ProjectMatch was directly inspired by this tool and designed to address its primary limitation by introducing the Fairness Engine. On the other end of the spectrum, large-scale Enterprise Resource Planning (ERP) systems (such as SAP or Oracle campuses) offer robust allocation features but are often prohibitively expensive, overly complex, and not tailored to the specific nuances of final-year academic projects, which require careful consideration of prerequisite skills. ProjectMatch aims for the middle ground: a bespoke, lightweight application that is specifically tuned to the academic workflow without the bloat of an ERP. While these institutional tools represent the current state of practice, the algorithmic approaches used to resolve allocation conflicts deserve closer examination.
 
 2.2 Matching & Allocation Algorithms in Literature
 The Student-Project Allocation (SPA) problem is a well-documented variation of the classic Gale-Shapley stable marriage problem. This paradigm mirrors real-world systems such as the NHS Foundation Programme or the UCAS university admissions service, which deploy advanced matching algorithms to place hundreds of thousands of applicants annually. While these national systems guarantee rigorous mathematical fairness via variations of the Gale-Shapley algorithm, they are often too heavyweight for departmental use. Traditional SPA algorithms aim for mathematically "stable" matchings where no student and project would rather be assigned to each other over their current allocations. However, pure stability often ignores the nuance of academic suitability. To address this, constraint satisfaction heuristics can be employed. While Abraham et al. (2007) proved certain SPA algorithms are mathematically resilient, the custom heuristic scoring weighting applied in ProjectMatch's Fairness Engine technically approximates but does not guarantee a universally stable matching. This trade-off was intentionally made to prioritize capacity constraints and dynamic suitability scoring over rigid instability proofs. ProjectMatch's "Fairness Engine" is designed as a custom heuristic scoring algorithm. Rather than purely looking at preference order, it calculates a hybrid score for each student-project pairing, combining their explicit ranked preference (e.g., Rank 1, 2, or 3) with a Profile Matching Score derived from intersecting the student's submitted skills with the project's prerequisites. This ensures that allocations are not only mathematically fair but academically sound. Having established both the practical limitations of existing systems and the theoretical basis for preference-based matching, the following section summarises the specific gaps that ProjectMatch is designed to address.
 
 2.3 Summary & Gaps Addressed by ProjectMatch
-ProjectMatch directly addresses the gaps left by manual spreadsheets and generic forms by enforcing hard constraints (supervisor quotas) automatically while maximizing student satisfaction and academic fit through its Fairness Engine. Furthermore, the inclusion of a Draft vs. Submit workflow ensures that the algorithm only processes finalized data, preserving data integrity in a way that live shared spreadsheets cannot.
+ProjectMatch directly addresses the gaps left by manual spreadsheets and generic forms by enforcing hard constraints (supervisor quotas) automatically while maximizing student satisfaction and academic fit through its Fairness Engine. Unlike existing institutional solutions which require administrators to reconcile conflicts manually, ProjectMatch provides a single integrated platform handling data collection, validation, algorithmic matching, and stakeholder notification within one cohesive system.
 
  SECTION 3 — Requirements, Analysis & Project Management (~1,150 words)
 3.1 Stakeholder Analysis
@@ -220,7 +221,12 @@ The development of ProjectMatch was informed by established software and interac
 **Software Design Patterns (Gang of Four).** The Observer Pattern is implemented via the Global Notification Engine. Backend state changes — such as allocation completion or preference locking — serve as observable events. Django's Context Processor acts as the observer, universally injecting unread notification counts into every rendered template without tight coupling between the event source and its recipients. The Template Method Pattern governs the frontend layout through Django's template inheritance system. A unified base.html acts as the master skeleton defining structural invariants such as navigation bars and layout grids, while distinct module templates override specific block content regions, significantly reducing structural code duplication and enforcing visual consistency across all stakeholder dashboards.
 
 3.6 Development Methodology
-The project adopted an Agile, iterative methodology (Sommerville, 2016). Rather than a rigid waterfall release, the system was built in vertical, functional slices. Development was divided into incremental sprints: beginning with static UI wireframes designed in Figma (Figma, Inc., 2025), advancing to database schema mapping, then establishing the distinct Django stakeholder views, and finally tuning the complex algorithmic Fairness Engine. This iterative approach allowed continuous testing, feedback integration, and refinement of the user experience at each stage, with each sprint building directly on the validated output of the previous one.
+The project adopted an Agile, iterative methodology (Sommerville, 2016). Rather than a rigid waterfall release, the system was built in vertical, functional slices. Development was divided into four incremental sprints: 
+*   **Sprint 1**: UI wireframing and stakeholder interface design conducted in Figma (Figma, Inc., 2025).
+*   **Sprint 2**: Database schema mapping and Django model implementation.
+*   **Sprint 3**: Establishing the distinct stakeholder views and RBAC authentication logic.
+*   **Sprint 4**: Implementing, testing, and tuning the Fairness Engine algorithm.
+This iterative approach allowed continuous testing, feedback integration, and refinement of the user experience at each stage, with each sprint building directly on the validated output of the previous one.
 
 🖼️ Figure 3.3 — Agile Development Timeline
 *(Visual diagram to be inserted here. A Gantt chart or vertical timeline showing chronological sprints: UI Wireframing -> Database Models -> View Logic -> Fairness Engine -> Testing.)*
@@ -669,7 +675,23 @@ SECTION 7 — Conclusion (~300 words)
 ProjectMatch successfully bridges the gap between disorganized manual spreadsheets and overly complex institutional ERPs. By delivering an elegant, tailored web application using the Django framework, the project digitized the entire final-year student allocation workflows into a secure, role-based platform. The integration of the Fairness Engine replaced human bias and administrative delay with a structured, transparent algorithm that explicitly calculates merit via profile prerequisite matching and ranked preference weightings. This work achieved the primary research aim of designing and evaluating an automated matching algorithm that reduces administrative overhead while satisfying student preferences.
 
 7.2 Reflection Against Objectives
-The initial aims to streamline data entry, prevent quota over-filling, and increase overall system transparency were met definitively. The interactive interface reliably handles real-time ranking adjustments via AJAX, thereby completely eliminating page-refresh latency and streamlining the core student bottleneck. The global notification system effectively loops supervisors and students together without relying on scattered external email threads.
+The table below maps each original project objective against its outcome, providing a clear summary of what was achieved, what was partially implemented, and what has been deferred to future work.
+
+📊 Table 7.1 — Objectives vs Outcomes
+| Objective | MoSCoW Priority | Outcome | Status |
+|---|---|---|---|
+| Design and implement a fair automated allocation algorithm (Fairness Engine) | Must Have | Fully implemented with hybrid scoring, quota enforcement, and structured fallbacks | ✅ Done |
+| Provide a drag-and-drop preference ranking interface | Must Have | Implemented using SortableJS with AJAX background save | ✅ Done |
+| Enforce supervisor quota constraints automatically | Must Have | Hard integer quota limits enforced at database and algorithm level | ✅ Done |
+| Implement role-based access control for three stakeholder types | Must Have | RBAC implemented via custom Python decorators and session-based routing | ✅ Done |
+| Provide real-time notifications for all stakeholders | Must Have | Global context processor injects unread counts; SweetAlert2 confirms critical actions | ✅ Done |
+| Allow supervisors to view interested students and run suitability checks | Should Have | Suitability check interface implemented with prerequisite match indicators | ✅ Done |
+| Provide administrator manual override capability | Should Have | Manual allocation panel implemented with safeguards for full projects | ✅ Done |
+| Dynamic weighting slider for Fairness Engine scoring ratio | Should Have | UI implemented; partial backend integration | ⚠️ Partial |
+| Allow students to propose their own project topics | Could Have | Not implemented within project timeline | ❌ Deferred |
+| Departmental allocation profiles with discipline-specific presets | Could Have | Designed as future work; not implemented | ❌ Deferred |
+| SSO integration with university active directory | Won't Have | Identified as future work from outset | ⏭ Future Work |
+| Machine learning project recommendation layer | Won't Have | Identified as future work from outset | ⏭ Future Work |
 
 7.3 Limitations
 Despite meeting all functional requirements, the system possesses acknowledged limitations that warrant honest critical reflection.
@@ -705,8 +727,41 @@ Aston University (2025) Aston University brand guidelines [Online]. Available at
 W3C (2025) Web Content Accessibility Guidelines (WCAG) 2.2 [Online]. Available at: https://www.w3.org/TR/WCAG22/ (Accessed: 16 March 2026).
 
 APPENDICES (not counted in word limit)
-Appendix A — Full ER Diagram
-[Only include if the diagram is too large and detailed for Section 4.2. Otherwise keep it in the main body.]
-Appendix B — Full Trello Board Screenshot & Link
-[Full board view if the Section 7.2 screenshot doesn't show everything]
-[Do not bloat the appendix. Maximum 1–2 items. No code screenshot dumps.]
+Appendix A — Full Entity Relationship Diagram
+The complete ERD illustrates the enforced ForeignKey bindings and table relationships between all entities in the ProjectMatch SQLite database, serving as the master blueprint for the database schema established during development to ensure data integrity throughout the allocation lifecycle.
+[Insert full ERD here]
+
+Appendix B — Full Trello Board and Sprint Tracking
+The ProjectMatch Kanban board provides a chronological view of all Agile development sprints (Atlassian, 2025), detailing micro-tasks tracked through Backlog, To Do, In Progress, and Done columns.
+[Insert full Trello board screenshot here]
+
+Appendix C — GitHub Commit History
+The full GitHub commit history demonstrates the Agile development lifecycle through atomic, descriptive commits anchored to specific milestones. This provides evidence of the version control discipline referenced in Section 3.8.
+[Insert full GitHub commit history screenshot here]
+
+Appendix D — Synthetic Data Seed Script
+The seed_final_data.py management command is referenced in Section 5.7 as the mechanism used to generate the synthetic test cohort. The full script is included here to demonstrate the non-trivial nature of the data generation approach and to allow markers to verify the implementation.
+[Insert full seed_final_data.py code here]
+
+Appendix E — Supervisor Meeting Diary
+The following log documents all formal supervision meetings held throughout the project lifecycle, providing evidence of regular academic contact and iterative feedback incorporation.
+| Date | Duration | Topics Discussed | Actions Agreed |
+|---|---|---|---|
+| [Date] | [Duration] | [Topics] | [Actions] |
+| [Date] | [Duration] | [Topics] | [Actions] |
+
+---
+
+**CONSOLIDATED FIGURE & APPENDIX LIST**
+*   Fig 2.1 — Aston FYP tool screenshot (cs.aston.ac.uk/FYP)
+*   Fig 3.1 — Stakeholder diagram
+*   Fig 3.3, 3.4, 3.5 — Gantt, Trello, GitHub
+*   Fig 4.3 — ERD
+*   Fig 4.4–4.7 — Figma wireframes and UI components
+*   Fig 5.1a — Weighting slider
+*   Fig 5.3, 5.4 — Drag-drop interface and DevTools AJAX evidence
+*   Fig 5.5–5.8 — Notification, context processor, SweetAlert2, override panel
+*   Fig 5.9, 5.10 — Seed script snippet and populated database
+*   Fig 5.11, 5.12 — Chart.js dashboards
+*   Fig 6.2–6.9 — Test evidence screenshots with annotations
+*   Appendix B–E — Trello, GitHub, seed script, meeting diary
