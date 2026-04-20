@@ -15,7 +15,7 @@ ACKNOWLEDGEMENTS
 ABSTRACT
 The allocation of university final year students to academic projects and supervisors is a process often burdened by administrative overhead, manual errors, and sub-optimal matching outcomes. This project introduces ProjectMatch, a web-based system designed to streamline and automate the student-project application and allocation process. A full-stack application was developed using the Django framework and an SQLite database, featuring distinct interfaces for students, supervisors, and administrators.
 At the heart of the system is the "Fairness Engine", an allocation algorithm that matches students to projects by cross-referencing student skill profiles against supervisor requirements, while factoring in each student's ranked preferences across their three selected projects. The algorithm prioritises primary choices where possible, with structured fallbacks to secondary preferences when constraints prevent an exact match. A manual allocation interface was also integrated to allow administrators to override decisions in exceptional cases.
-The user experience is supported by a drag-and-drop ranking interface using AJAX for seamless data persistence, and a real-time notification engine powered by a global context processor. System performance was validated using a custom Python script to generate synthetic data, simulating realistic allocation workloads. In simulated testing, the Fairness Engine successfully allocated 100% of eligible students, with the majority receiving their first-choice project without exceeding supervisor quotas. In simulated testing, the Fairness Engine successfully allocated 100% of eligible students, with the majority receiving their first-choice project without exceeding supervisor quotas. ProjectMatch delivers a scalable, transparent, and user-friendly solution that reduces administrative burden while improving the efficiency and fairness of the student-project matching process.
+The user experience is supported by a drag-and-drop ranking interface using AJAX for seamless data persistence, and a real-time notification engine powered by a global context processor. System performance was validated using a custom Python script to generate synthetic data, simulating realistic allocation workloads. In simulated testing, the Fairness Engine successfully allocated 100% of eligible students, with the majority receiving their first-choice project without exceeding supervisor quotas. ProjectMatch delivers a scalable, transparent, and user-friendly solution that reduces administrative burden while improving the efficiency and fairness of the student-project matching process.
 
 KEYWORDS
 Project Allocation, Preference-Based Matching, Fairness Engine, Django, Web Application, Student-Supervisor Matching, Automated Allocation, Role-Based Access Control
@@ -51,7 +51,7 @@ LIST OF TABLES
 [Auto-generate in Word once all tables are inserted]
 
 SECTION 1 — Introduction (~500 words)
-The allocation of students to final-year projects and supervisors is a critical administrative function in higher education. Historically, this process has relied on manual data entry, spreadsheets, and scattered email communications. The primary aim of this research is to design, implement, and evaluate a fair, automated allocation algorithm that reduces administrative burden while maximizing student preference satisfaction. The primary aim of this research is to design, implement, and evaluate a fair, automated allocation algorithm that reduces administrative burden while maximizing student preference satisfaction. For students, this meant limited transparency when selecting topics; for academic staff and administrators, it resulted in significant overhead, bottlenecked communication, and an increased risk of allocation errors and mismatched outcomes.
+The allocation of students to final-year projects and supervisors is a critical administrative function in higher education. Historically, this process has relied on manual data entry, spreadsheets, and scattered email communications. The primary aim of this research is to design, implement, and evaluate a fair, automated allocation algorithm that reduces administrative burden while maximizing student preference satisfaction. For students, this meant limited transparency when selecting topics; for academic staff and administrators, it resulted in significant overhead, bottlenecked communication, and an increased risk of allocation errors and mismatched outcomes.
 ProjectMatch was developed to tackle these inefficiencies directly. Built as a full-stack web application using the Django framework (Django Software Foundation, 2025) and an SQLite database (Hipp, 2025), the system provides a professional-standard platform for three key stakeholders. Role-Based Access Control (RBAC) ensures each user group receives a tailored experience — students browsing and applying for projects, supervisors managing their offerings, and administrators overseeing the entire allocation lifecycle.
 The proposed solution digitises the entire workflow. Students can securely browse projects and submit ranked preferences using an interactive drag-and-drop interface built with JavaScript and styled using Bootstrap 5 (The Bootstrap Authors, 2025). Supervisors are provided with real-time dashboard statistics and suitability check tools to verify whether students meet project prerequisites. Administrators can execute an automated matching algorithm, known as the "Fairness Engine," which respects constraints such as supervisor workloads and student preferences, with structured fallbacks when top-tier choices cannot be fulfilled. The result is a streamlined, transparent, and significantly faster allocation process.
 
@@ -506,25 +506,25 @@ For critical, high-stakes actions — such as locking project preferences or con
 [Figure 5.6: Django Context Processor Snippet — backend logic for real-time alert injection]
 [Figure 5.7: SweetAlert2 Modal — animated confirmation modal for preference submission]
 
-5.5 Manual Allocation Override
+5.6 Manual Allocation Override
 While the Fairness Engine handles the bulk of assignments efficiently, an administrator retains the capability to intervene via a manual allocation panel. This interface provides dropdown menus of all unallocated students and all non-full projects, allowing the administrator to bypass prerequisite logic entirely to resolve exceptional circumstances safely.
 
-🖼️ Figure 5.7 — Manual Allocation Override Panel
+🖼️ Figure 5.8 — Manual Allocation Override Panel
 ![Manual Override UI](images/manual_override_ui.png)
 
-5.6 Synthetic Data Generation
+5.7 Synthetic Data Generation
 To rigorously test the algorithmic pathways and UI limits before formal deployment, a custom Django management command (`seed_final_data.py`) was created. Executable via `python manage.py seed_final_data`, the script systematically drops existing tables and repopulates the database with realistic synthetic records: 15 students, 5 supervisors, and 15 highly-detailed academic projects ranging from AI chatbots to IoT systems. This mass insertion mechanism simulated a realistic mid-semester state.
 
-🖼️ Figure 5.8 — Synthetic Data Seeding Script
+🖼️ Figure 5.9 — Synthetic Data Seeding Script
 ![Terminal script execution](images/terminal_seed.png)
-📊 Table 5.3 — Synthetic Data Summary
+📊 Table 5.2 — Synthetic Data Summary
 | Data Type | Volume Generated | Purpose |
 |---|---|---|
 | Students | 15 | Simulate cohort application behaviour |
 | Supervisors | 5 | Provide capacity thresholds (quota) |
 | Projects | 15 (3 per supervisor)| Test algorithmic prerequisite matching |
 
-5.7 Security & Edge Case Handling
+5.8 Security & Edge Case Handling
 Extensive safety valves handle security and edge cases seamlessly. ProjectMatch leverages **Django-native security features** to protect system integrity:
 
 *   **Cross-Site Request Forgery (CSRF) Protection**: Every AJAX request, such as during the drag-and-drop preference reordering, is validated with a unique CSRF token. This ensures all POST requests originate directly from the authenticated user and not a malicious third-party script.
@@ -533,18 +533,18 @@ Extensive safety valves handle security and edge cases seamlessly. ProjectMatch 
 
 Furthermore, if a student attempts to submit 0 preferences, the Form blocks submission and fires a Django Message error. If a project is missing prerequisites, the parser gracefully returns a `0/0` match without crashing. If a student leaves an unranked project in their Draft pool, the algorithms actively filter for `rank > 0` arrays, ignoring discarded drafts.
 
-📊 Table 5.4 — Edge Cases
+📊 Table 5.3 — Edge Cases
 | Scenario | System Response |
 |---|---|
 | Project has no prerequisites | Engine safely awards `0` profile score, weighting purely on rank choice |
 | Student submits early, but Rank 1 is full | Engine cascades evaluation to Rank 2 without failing |
 | Manual override attempted on full project | Admin UI explicitly flags the project as "Fully filled" immediately |
 
-5.8 Data Visualisation and Dashboard Logic
+5.9 Data Visualisation and Dashboard Logic
 To reduce cognitive load for administrators and supervisors, ProjectMatch transforms raw database totals into data-driven visualisations. Using Chart.js, the dashboards present dynamic doughnut charts that compare Allocated versus Available Spaces for each project, allowing for at-a-glance capacity monitoring without requiring manual calculation. This approach directly addresses Nielsen's Recognition Rather Than Recall heuristic by surfacing key metrics visually rather than requiring users to interpret raw numbers from a table (Nielsen, 1994).
 The system further implements colour-coded Status Pills and Progress Bars to represent complex states — such as Draft versus Submitted, or Allocated versus Unallocated — as instantly readable visual cues. These components are styled consistently with the Aston colour scheme (Aston University, 2025) and meet WCAG 2.2 contrast requirements (W3C, 2025), ensuring accessibility across all user roles. Additionally, Designed Empty States replace empty tables with illustrative icons and contextual guidance text. Rather than presenting a blank page when no data exists — such as before any projects have been created — the system provides clear instructions on next steps, fulfilling Nielsen's Help and Documentation heuristic and ensuring users feel supported throughout the allocation lifecycle (Nielsen, 1994).
-[Figure 5.8: Supervisor Analytics — Chart.js doughnut charts and progress bars showing project capacity]
-[Figure 5.9: Dynamic Admin Dashboard — real-time table footers showing registered student totals and allocation percentages]
+[Figure 5.10: Supervisor Analytics — Chart.js doughnut charts and progress bars showing project capacity]
+[Figure 5.11: Dynamic Admin Dashboard — real-time table footers showing registered student totals and allocation percentages]
 
 **5.10 Administration & Auditability**
 A comprehensive **System Audit Trail** was integrated to provide transparency and accountability for critical administrative actions. Every significant event—including Fairness Engine execution, manual allocation overrides, and student profile submissions—is recorded in a dedicated `AuditLog` table. This history is surfaced directly to the Administrator via a dashboard table, allowing for a complete historical review of system state changes during the project defense.
@@ -610,8 +610,6 @@ Security and boundary limits were evaluated blind to the codebase. Attempts to a
 | BB05 | User enters non-numeric characters in Student ID field | Form blocks submission with "Student ID must be numeric" error | Error message displayed correctly | Pass |
 | BB06 | User enters a project quota of 999 | Database validators reject the input | System displays "Ensure this value is less than or equal to 50" | Pass |
 | BB07 | Administrator performs manual allocation | Entry appears in System Audit Trail | Live log entry verified on dashboard | Pass |
-| BB03 | Student attempts to submit invalid ranking format (SQL injection drop via AJAX payload) | The Django backend sanitizes layout sequence gracefully throwing 400 | Return 400 Bad Request | Pass |
-| BB04 | Administrator triggers Fairness Engine without any student preferences locked | Engine gracefully skips all without breaking | Return 0 allocations | Pass |
 
 6.6 White Box Testing
 Path execution coverage for the Fairness Engine confirmed that if a project hits its quota exactly, the conditional `if state['filled'] >= state['quota']: continue` correctly skips to the student's next ranked choice without throwing an array index exception.
