@@ -32,22 +32,22 @@ def home(request):
             # Look up sequentially in Admin, Supervisor, then Student tables
             
             # Check Admin
-            user = Admin.objects.filter(email__iexact=email, password=password).first()
-            if user:
+            user = Admin.objects.filter(email__iexact=email).first()
+            if user and user.check_password(password):
                 request.session["user_role"] = "admin"
                 request.session["user_id"] = user.id
                 return redirect("admin_dashboard")
             
             # Check Supervisor
-            user = Supervisor.objects.filter(email__iexact=email, password=password).first()
-            if user:
+            user = Supervisor.objects.filter(email__iexact=email).first()
+            if user and user.check_password(password):
                 request.session["user_role"] = "supervisor"
                 request.session["user_id"] = user.id
                 return redirect("supervisor_dashboard")
 
             # Check Student
-            user = Student.objects.filter(email__iexact=email, password=password).first()
-            if user:
+            user = Student.objects.filter(email__iexact=email).first()
+            if user and user.check_password(password):
                 request.session["user_role"] = "student"
                 request.session["user_id"] = user.id
                 return redirect("student_dashboard")

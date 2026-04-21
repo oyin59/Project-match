@@ -59,8 +59,9 @@ def run_allocation_algorithm():
     )
     
     # Step 2: Sort Students
-    # Sort by timestamp (earliest first), and alphabetical name as tie-breaker
-    sorted_students = eligible_students.order_by('preferences_submitted_at', 'last_name', 'first_name')
+    # Remove speed bias (earliest first) as a primary metric for fairness.
+    # We now order non-deterministically (or by student ID) so login speed doesn't guarantee Rank 1.
+    sorted_students = eligible_students.order_by('id')
     
     # Track project capacities in memory to avoid DB hits in loop
     projects = Project.objects.annotate(current_allocations=Count('allocated_students'))
@@ -72,8 +73,8 @@ def run_allocation_algorithm():
         best_project_id = None
         highest_score = -1
         
-        # Get Student's Preferences
-        preferences = StudentPreference.objects.filter(student=student).order_by('rank')
+        # Get Student's Preferences (Strictly ignore unranked/rank=0)
+        preferences = StudentPreference.objects.filter(student=student, rank__gt=0).order_by('rank')
         
         for pref in preferences:
             p_id = pref.project.id
@@ -95,13 +96,15 @@ def run_allocation_algorithm():
                 skills = student.profile.skills
             except:
                 pass
+            # B. Profile Matching Score (0-50)
             matches, total_prereqs = calculate_prerequisite_match(skills, state['prereqs'])
             
-            # If total_prereqs is 0 (or not 6), we normalize as if there were 6 points as per rubric
-            # User specified "6 criteria". If 3 are listed and 3 matched, is that 50/50? 
-            # Logic: (matches / 6) * 50. 
-            # If user has fewer than 6 requirements, max score is lower, which motivates adding them.
-            profile_score = (matches / 6) * 50
+            # Normalize profile score: 100% match = 50 points, regardless of how many criteria.
+            if total_prereqs > 0:
+                profile_score = (matches / total_prereqs) * 50
+            else:
+                # If project has no prerequisites, award 0 so preference rank decides.
+                profile_score = 0
             
             # B. Preference Score (0-50)
             # Rank 1 = 50, Rank 2 = 30, Rank 3 = 10 (Arbitrary descending scale to fit 50 range)

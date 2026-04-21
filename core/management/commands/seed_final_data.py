@@ -55,10 +55,10 @@ class Command(BaseCommand):
         self.stdout.write(f"Added {len(unique_modules)} Modules")
 
         # 4. Add Admin
-        Admin.objects.create(
-            email="grace.adebayo@projectmatch.py",
-            password="admin123"
+        admin_user = Admin.objects.create(
+            email="grace.adebayo@projectmatch.py"
         )
+        admin_user.set_password("admin123")
         self.stdout.write("Added Admin: Grace Adebayo")
 
         # 5. Add Supervisors
@@ -76,9 +76,9 @@ class Command(BaseCommand):
                 first_name=fname, 
                 last_name=lname, 
                 email=email,
-                password="supervisor123",
                 courses="BSc Computer Science"
             )
+            sup.set_password("supervisor123")
             supervisors[fname] = sup
 
         self.stdout.write(f"Added {len(supervisors)} Supervisors")
@@ -103,12 +103,12 @@ class Command(BaseCommand):
         ]
 
         for fname, lname, email in students_data:
-            Student.objects.create(
+            student = Student.objects.create(
                 first_name=fname, 
                 last_name=lname, 
-                email=email,
-                password="student123"
+                email=email
             )
+            student.set_password("student123")
             
         self.stdout.write(f"Added {len(students_data)} Students")
 

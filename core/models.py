@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
+from django.contrib.auth.hashers import make_password, check_password as django_check_password
+
 
 
 class Admin(models.Model):
@@ -8,6 +10,13 @@ class Admin(models.Model):
 
     def __str__(self):
         return self.email
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self.save()
+
+    def check_password(self, raw_password):
+        return django_check_password(raw_password, self.password)
 
 
 class Supervisor(models.Model):
@@ -19,6 +28,13 @@ class Supervisor(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}".strip() or self.email
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self.save()
+
+    def check_password(self, raw_password):
+        return django_check_password(raw_password, self.password)
 
 
 class Department(models.Model):
@@ -94,6 +110,13 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}".strip() or self.email
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self.save()
+
+    def check_password(self, raw_password):
+        return django_check_password(raw_password, self.password)
 
 
 class StudentProfileDetails(models.Model):
