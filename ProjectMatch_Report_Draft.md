@@ -615,6 +615,9 @@ System tests mirrored full academic lifecycles. Utilizing the synthetic tracking
 6.5 Black Box Testing
 Security and boundary limits were evaluated blind to the codebase. Attempts to access the `/admin-allocations/` URL while logged in as a student were gracefully redirected to the homepage, validating the RBAC permissions.
 
+**Figure 6.5: Black Box Test Evidence (RBAC Redirect)**
+![RBAC Redirect captured in Network Tab](file:///C:/Users/oyina/.gemini/antigravity/brain/2e1b6289-12de-457a-a3fd-5d8a70989e77/uploaded_media_1776771803532.img)
+
 6.5.1 Security Audit and Remediation
 Following the initial round of Black Box testing, a comprehensive technical security review was conducted on the architecture. This surfaced critical vulnerabilities in the original prototype, primarily the storage of raw passwords in the database and the hard-coding of the `SECRET_KEY` in settings. To elevate the application to production-ready status, a rigorous remediation sprint was executed:
 1.  **Cryptographic Password Hashing**: The custom role models were retrofitted to utilize Django's native `make_password` and `check_password` utility functions. All existing database records were successfully migrated to safe hash keys (PBKDF2 with SHA-256), securing student credentials at rest.
