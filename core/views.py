@@ -1291,3 +1291,66 @@ def mark_notifications_read(request):
     if referer:
         return redirect(referer)
     return redirect("home")
+
+import csv
+from django.http import HttpResponse
+
+def admin_export_data(request):
+    """Exports allocations to a CSV file including rank and rationale."""
+    if request.session.get("user_role") != "admin":
+        return redirect("home")
+        
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="allocations_export.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Student Name', 'Student Email', 'Allocated Project', 'Supervisor', 'Preference Rank', 'Allocation Rationale'])
+    
+    from .models import Student, StudentPreference
+    students = Student.objects.select_related('allocated_project', 'allocated_project__supervisor').all().order_by('last_name')
+    
+    for s in students:
+        if s.allocated_project:
+            rank = "Manual"
+            rationale = "Manually allocated by Administrator."
+            try:
+                p = StudentPreference.objects.get(student=s, project=s.allocated_project)
+                rank = p.rank
+                
+                if rank == 1:
+                    rationale = "Rank 1 Preference - Highest overall hybrid score."
+                elif rank > 1:
+                    # Determine why they got rank > 1. Was Rank 1 full, or did Rank 2 just have a better score?
+                    # We can check the Rank 1 project's current allocation count.
+                    higher_prefs = StudentPreference.objects.filter(student=s, rank__lt=rank)
+                    was_full = False
+                    for hp in higher_prefs:
+                        if hp.project.allocated_students.count() >= hp.project.quota:
+                            was_full = True
+                            
+                    if was_full:
+                        rationale = f"Rank {rank} Preference - Cascaded because higher preference was at maximum quota."
+                    else:
+                        rationale = f"Rank {rank} Preference - Assigned due to significantly higher academic profile match overriding preference rank."
+                        
+            except StudentPreference.DoesNotExist:
+                pass
+            
+            project_title = s.allocated_project.title
+            supervisor_name = f"{s.allocated_project.supervisor.first_name} {s.allocated_project.supervisor.last_name}"
+        else:
+            project_title = "Unallocated"
+            supervisor_name = "N/A"
+            rank = "N/A"
+            rationale = "No successful match found or unallocated."
+            
+        writer.writerow([
+            f"{s.first_name} {s.last_name}",
+            s.email,
+            project_title,
+            supervisor_name,
+            rank,
+            rationale
+        ])
+        
+    return response
