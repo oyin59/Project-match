@@ -34,14 +34,15 @@ CSS	Cascading Style Sheets
 CSV	Comma-Separated Values
 DB	Database
 DOM	Document Object Model
-ER	Entity-Relationship
+ERD	Entity Relationship Diagram
 FR	Functional Requirement
 FYP	Final Year Project
+HCI	Human-Computer Interaction
 HTML	HyperText Markup Language
 HTTP	Hypertext Transfer Protocol
 JS	JavaScript
 JSON	JavaScript Object Notation
-MTV	Model-Template-View
+KPI	Key Performance Indicator
 MVT	Model-View-Template
 MVC	Model-View-Controller
 NFR	Non-Functional Requirement
@@ -54,6 +55,7 @@ SHA	Secure Hash Algorithm
 SMTP	Simple Mail Transfer Protocol
 SPA	Student-Project Allocation
 SQL	Structured Query Language
+SRP	Single Responsibility Principle
 SSO	Single Sign-On
 UI	User Interface
 UX	User Experience
@@ -737,15 +739,15 @@ Despite meeting all core functional requirements, the system possesses acknowled
 7.4 Future Work
 ProjectMatch has significant avenues for future expansion to achieve true institutional scalability. A comprehensive technical security review highlighted several critical pathways for transitioning from a departmental prototype to an enterprise-grade platform:
 
-*   **Production Database Migration**: While SQLite is highly efficient for local development and limited cohort sizes, file-level locking poses scalability boundaries. A production rollout would mandate a transition to a relational database like PostgreSQL or MySQL to manage concurrent writes during high-traffic submission deadlines.
-*   **Architectural Normalization**: Currently, supervisor courses are stored as comma-separated strings for computational simplicity during the prototype phase. A production rollout would normalize this into a Many-to-Many entity relationship, enforcing stricter referential data integrity across the database.
-*   **Advanced Performance Optimization**: As the cohort size scales to thousands of students, the algorithmic complexity requires caching mechanisms or the offloading of the Fairness Engine execution to background task queues (e.g., Celery) to prevent request timeouts.
-*   **Advanced Administrative Tools**: To manage scaling cohorts effectively, the admin interfaces should be upgraded to include advanced search and filtering, bulk-action capabilities, and detailed analytics reporting on allocation fairness and supervisor load.
-*   **Decoupled REST API Endpoints**: To support future mobile applications or external institutional portals, the core business logic could be abstracted into secure REST API endpoints, fully decoupling the backend algorithms from the Django templating engine.
-*   **External Email Notifications**: Augmenting the current internal global notification engine with external email dispatches (via SMTP) would close the communication loop, ensuring stakeholders are alerted even when logged out.
-*   **Institutional SSO Integration**: Integrating Single Sign-On (SSO) with the university’s active directory (e.g., Azure AD) would eliminate local password storage entirely, delegating authentication to existing institutional infrastructure.
-*   **Machine Learning Recommendation Layer**: The Fairness Engine could be augmented with a natural language processing (NLP) layer. This would address the current string-matching limitation by semantically analyzing student research interests and dynamically suggesting projects.
-*   **Departmental Allocation Profiles**: An administrator could select a department (e.g., EPS vs. Law) and apply a discipline-specific weighting preset. This would allow ProjectMatch to scale institution-wide while respecting the distinct allocation priorities and grading rubrics of each academic school.
+*   **Production Database Migration**: A transition to a relational database such as PostgreSQL or MySQL is mandatory for a production rollout to manage concurrent writes during high-traffic periods.
+*   **Architectural Normalisation**: Currently, supervisor courses are stored as comma-separated strings for prototype simplicity; a production version would normalise this into a Many-to-Many entity relationship to enforce stricter referential integrity.
+*   **Advanced Performance Optimisation**: To handle thousands of students, the system requires caching mechanisms or the offloading of engine execution to background task queues like Celery to prevent request timeouts.
+*   **Decoupled REST API Endpoints**: Business logic should be abstracted into secure REST API endpoints to support potential mobile applications and integration with third-party institutional portals.
+*   **External Email Notifications**: Augmenting the internal notification engine with SMTP dispatches would close the communication loop, ensuring stakeholders are alerted even when logged out.
+*   **Institutional SSO Integration**: Integrating with the university’s active directory (e.g., Azure AD) would eliminate local password storage and remove the credential management burden.
+*   **Machine Learning Recommendation Layer**: Adding an NLP layer would allow the engine to semantically analyse student research interests and suggest matching projects, directly addressing current string-matching limitations.
+*   **Departmental Allocation Profiles**: Administrators should be able to apply discipline-specific weighting presets (e.g., higher technical weighting for Engineering vs. higher preference weighting for Law) before triggering the engine to respect the distinct priorities of different academic schools.
+*   **Advanced Administrative Tools**: Upgrading interfaces to include advanced search, filtering, and bulk-action capabilities would allow for more effective management of large cohorts.
 
 Implementing these enhancements would finalize ProjectMatch’s transition into a robust, high-availability institutional platform capable of handling university-wide student placement correctly and securely.
 
