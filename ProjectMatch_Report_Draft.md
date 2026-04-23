@@ -22,24 +22,39 @@ Project Allocation, Preference-Based Matching, Fairness Engine, Django, Web Appl
 
 LIST OF ACRONYMS & ABBREVIATIONS
 Acronym	Definition
+AD	Active Directory
 AJAX	Asynchronous JavaScript and XML
 API	Application Programming Interface
 CRUD	Create, Read, Update, Delete
+CSRF	Cross-Site Request Forgery
+CSS	Cascading Style Sheets
 CSV	Comma-Separated Values
 DB	Database
+DOM	Document Object Model
 ER	Entity-Relationship
 FR	Functional Requirement
 FYP	Final Year Project
+HTML	HyperText Markup Language
 HTTP	Hypertext Transfer Protocol
+JS	JavaScript
+JSON	JavaScript Object Notation
 MTV	Model-Template-View
+MVT	Model-View-Template
 MVC	Model-View-Controller
 NFR	Non-Functional Requirement
+NLP	Natural Language Processing
+ORM	Object-Relational Mapping
+PBKDF2	Password-Based Key Derivation Function 2
 RBAC	Role-Based Access Control
 SDLC	Software Development Life Cycle
+SHA	Secure Hash Algorithm
+SMTP	Simple Mail Transfer Protocol
 SPA	Student-Project Allocation
 SQL	Structured Query Language
+SSO	Single Sign-On
 UI	User Interface
 UX	User Experience
+WCAG	Web Content Accessibility Guidelines
 
 TABLE OF CONTENTS
 [Auto-generate in Word once all sections are written]
@@ -747,7 +762,6 @@ MDN Web Docs (2025) AJAX [Online]. Available at: https://developer.mozilla.org/e
 Microsoft (2025) Visual Studio Code [Online]. Available at: https://code.visualstudio.com (Accessed: 16 March 2026).
 Sommerville, I. (2016) Software Engineering. 10th edn. Harlow: Pearson Education.
 Uyen, N.T., Nguyen, G.L., Pham, C.V., Sang, T.X. and Viet, H.H. (2023) 'A heuristic algorithm for student-project allocation problem', Lecture Notes in Computer Science, 13831, pp. 291–302. doi: 10.1007/978-3-031-26303-3_25.
-[Continue adding references as you write Sections 4–8 — aim for 15–20 total]
 Nielsen, J. (1994) Enhancing the explanatory power of usability heuristics. New York: ACM Press.
 SweetAlert2 (2025) SweetAlert2: A beautiful, responsive, customizable popup boxes [Online]. Available at: https://sweetalert2.github.io (Accessed: 2 April 2026).
 Chart.js (2025) Chart.js: Simple yet flexible JavaScript charting [Online]. Available at: https://www.chartjs.org (Accessed: 2 April 2026).
