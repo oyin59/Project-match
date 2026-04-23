@@ -1,83 +1,91 @@
 <div align="center">
-  <h1>✨ ProjectMatch ✨</h1>
-  <p><i>A smart, aesthetic, and automated university project allocation system.</i></p>
+  <img src="https://raw.githubusercontent.com/oyin59/Project-match/main/static/images/logo.png" alt="ProjectMatch Logo" width="120" style="margin-bottom: 20px;">
   
-  ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-  ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
-  ![Bootstrap](https://img.shields.io/badge/Bootstrap_5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
-  ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+  <h1>✨ ProjectMatch ✨</h1>
+  <p><b>A Premium Student-Project Allocation Platform for Academic Excellence</b></p>
+  
+  <p><i>Effortless. Fair. Satisfyingly Aesthetic.</i></p>
 
-  <p>Say goodbye to messy spreadsheets! ProjectMatch is a seamless, Django-based platform designed to match university students to their final-year academic projects with fairness, speed, and style. 💜</p>
+  [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+  [![Django](https://img.shields.io/badge/Django-092E20?style=flat-square&logo=django&logoColor=white)](https://www.djangoproject.com/)
+  [![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat-square&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+  [![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+  [![Licence](https://img.shields.io/badge/Academic-Project-purple?style=flat-square)](LICENSE)
+
+  <br>
+
+  <p align="center" style="max-width: 600px;">
+    Say goodbye to administrative friction. <b>ProjectMatch</b> is a sophisticated, full-stack platform designed to automate university project matching. Combining a merit-based allocation engine with a premium 3D user experience, it ensures every student finds their perfect match. 💜
+  </p>
 </div>
 
 ---
 
-## 🌟 Features
+## 🎨 Professional & Aesthetic UX
 
-*   👩‍🎓 **Smart Role Routing:** A beautiful, centralized login page that intelligently directs Students, Supervisors, and Administrators straight to their personalized dashboards.
-*   🖱️ **Drag-and-Drop Magic:** Students can effortlessly select and rank their top 3 project preferences using our tactile, interactive drag-and-drop UI. 
-*   ⚖️ **The Fairness Engine:** Our custom algorithmic matching engine calculates profile suitability and strict project quotas to allocate the entire cohort automatically!
-*   📊 **Suitability Checker & Dashboards:** Dynamic Chart.js visuals and progress bars give supervisors real-time insights into student prerequisite matches. 
-*   🔔 **Real-Time Notifications:** A friendly navbar bell alerts users of new actions (like preference reminders or successful allocations) alongside animated SweetAlert2 modals!
-*   💅 **Premium 3D Aesthetic:** Built with the official Aston University color palette, featuring deep purples, soft gradients, and interactive push-buttons for a satisfying UX.
+ProjectMatch isn't just a utility; it's a statement. Designed with the **Aston University** identity in mind, it features:
+
+*   📱 **Responsive Elegance:** A fluid interface that looks stunning on desktops, tablets, and phones.
+*   🖱️ **Tactile Interactions:** 3D-styled "push-buttons" that physically depress, providing satisfying user feedback.
+*   🌈 **Color Harmony:** A sophisticated palette of Deep Amethyst, Slate Gray, and Pearl White.
+*   ⚡ **Fluid Transitions:** Real-time data persistence via AJAX—no clunky page reloads.
 
 ---
 
-## 🛠️ How to Run Locally
+## 🚀 Key Functional Modules
 
-Want to take ProjectMatch for a spin? It's super easy! We use `pipenv` to manage our Python magic. 🪄
+*   👩‍🎓 **Smart Student Portal:** Intuitive **Drag-and-Drop** preference ranking (powered by SortableJS) and academic profile management.
+*   ⚖️ **The Fairness Engine:** A hybrid scoring algorithm that calculates the optimal cohort-wide allocation based on **Preferences** x **Academic Merit** x **Quotas**.
+*   📊 **Supervisor Dashboard:** Real-time suitability checks comparing student skillsets against project prerequisites via dynamic match indicators.
+*   🔔 **Real-Time Notifications:** A global notification engine ensuring no stakeholder misses a critical deadline.
+*   🛡️ **RBAC Security:** Role-Based Access Control enforced via custom Python decorators, securing all sensitive administrative paths.
 
-### 📋 Prerequisites
-*   **Python 3.x** installed on your machine.
-*   **Pipenv** installed (`pip install pipenv`).
+---
 
-### 🚀 Setup Guide
+## 💻 Tech Stack & Architecture
 
-**1. Clone & Enter**
-Grab the repository and open up your terminal:
+- **Core Engine:** Python 3.12 + Django 5.x (MVT Architecture)
+- **Data Persistence:** Relational SQLite Database
+- **Frontend Layer:** Vanilla CSS3 + Bootstrap 5 + SweetAlert2
+- **Dynamic Logic:** AJAX (Fetch API) + Chart.js Visualization
+- **Security:** CSRF Protection + PBKDF2 Password Hashing
+
+---
+
+## 🛠️ Developer Quick-Start
+
+Get ProjectMatch running on your machine in under **60 seconds**.
+
+### 1. Environment Setup
+We use `pipenv` for robust dependency management.
 ```bash
-git clone https://github.com/oyin59/Project-match.git
-cd Project-match
-```
-
-**2. Install Dependencies**
-Let Pipenv handle the heavy lifting:
-```bash
+git clone https://github.com/oyin59/Project-match.git && cd Project-match
 pipenv install
-```
-
-**3. Activate the Environment**
-Step into the virtual shell:
-```bash
 pipenv shell
 ```
 
-**4. Setup the Database**
-Apply the migrations to get your local SQLite database ready:
+### 2. Database Initialization
 ```bash
 python manage.py migrate
 ```
 
-**5. 🧪 Seed the Data (Highly Recommended!)**
-We built a handy script to generate dummy data so you can test everything immediately. This creates a fresh batch of Students, Supervisors, Admins, and Projects!
+### 3. Synthetic Data Seeding (Required for Demo) 🧪
+This generates a realistic cohort of 15 students, 5 supervisors, and 15 projects.
 ```bash
 python manage.py seed_final_data
 ```
-*(Psst! Check out `test_accounts.txt` after running this to see exactly who you can log in as!)*
 
-**6. Start the Server!**
+### 4. Lift-Off! 🚀
 ```bash
 python manage.py runserver
 ```
-Navigate to [`http://127.0.0.1:8000/`](http://127.0.0.1:8000/) in your browser and enjoy the aesthetic! 🎉
+🔗 Visit [`http://127.0.0.1:8000/`](http://127.0.0.1:8000/)
 
 ---
 
-## 🧐 Usability Testing
-
-If you'd like your friends or supervisors to test the system out, simply share the `test_accounts.txt` file with them! It contains all the dummy credentials they need to explore the platform as any role.
-
-<br>
 <div align="center">
-  <i>Built with 💜 for my Final Year Project at Aston University.</i>
+  <br>
+  <sub><b>ProjectMatch</b> • Final Year Project • Aston University</sub>
+  <br>
+  <sub>Developed with 💜 by your favorite developer</sub>
 </div>
