@@ -10,8 +10,11 @@ DECLARATION OF ORIGINALITY
 [Insert Aston University standard declaration — ask your supervisor for the exact wording required]
 
 ACKNOWLEDGEMENTS
-[Write 100–150 words thanking your supervisor by name, anyone who supported the project, and optionally your family.]
+I would like to express my sincere gratitude to my project supervisor, [Supervisor Name], for their invaluable guidance, constructive feedback, and continuous support throughout the development of ProjectMatch. Their insights into academic allocation processes and software architecture were instrumental in shaping the Fairness Engine and the overall direction of this project.
 
+I am also thankful to the Department of Computer Science at Aston University for providing the foundational knowledge and resources that made this project possible. 
+
+Finally, I wish to thank my family and friends for their unwavering encouragement and patience over the course of this Final Year Project.
 ABSTRACT
 The allocation of university final year students to academic projects and supervisors is a process often burdened by administrative overhead, manual errors, and sub-optimal matching outcomes. This project introduces ProjectMatch, a web-based system designed to streamline and automate the student-project application and allocation process. A full-stack application was developed using the Django framework and an SQLite database, featuring distinct interfaces for students, supervisors, and administrators.
 At the heart of the system is the "Fairness Engine", an allocation algorithm that matches students to projects by cross-referencing student skill profiles against supervisor requirements, while factoring in each student's ranked preferences across their three selected projects. The algorithm prioritises primary choices where possible, with structured fallbacks to secondary preferences when constraints prevent an exact match. A manual allocation interface was also integrated to allow administrators to override decisions in exceptional cases.
