@@ -253,15 +253,11 @@ The development of ProjectMatch was informed by established software and interac
 The project adopted an Agile, iterative methodology (Sommerville, 2016). Rather than a rigid waterfall release, the system was built in vertical, functional slices. Development was divided into four incremental sprints: 
 *   **Sprint 1**: UI wireframing and stakeholder interface design conducted in Figma (Figma, Inc., 2025).
 *   **Sprint 2**: Database schema mapping and Django model implementation.
-*   **Sprint 3**: Establishing the distinct stakeholder views and RBAC authentication logic.
-*   **Sprint 4**: Implementing, testing, and tuning the Fairness Engine algorithm.
-This iterative approach allowed continuous testing, feedback integration, and refinement of the user experience at each stage, with each sprint building directly on the validated output of the previous one.
+3.5 Development Methodology
+The project adopted an iterative **Software Development Life Cycle (SDLC)** approach, specifically an Agile methodology. Rather than attempting a rigid "waterfall" release, the system was built in vertical, functional slices. Development was divided into incremental sprints: beginning with basic static UI wireframes, advancing to database schema mapping, then establishing the distinct Django stakeholder views, and finally tuning the complex algorithmic Fairness Engine. This iterative approach allowed continuous testing, feedback integration, and refinement of the user experience at each stage.
 
-🖼️ Figure 3.3 — Agile Development Timeline
-*(Visual diagram to be inserted here. A Gantt chart or vertical timeline showing chronological sprints: UI Wireframing -> Database Models -> View Logic -> Fairness Engine -> Testing.)*
-
-3.7 Trello and Sprint Tracking
-A Kanban-style Trello board was used to track Agile sprints and manage the project scope (Atlassian, 2025). Features were broken down into manageable micro-tasks — for example, "Build drag-and-drop AJAX endpoint" rather than the broad "Build Student UI" — and tracked across structured columns: Backlog, To-Do, In Progress, and Done. This explicit visualisation maintained architectural momentum, ensured transparent progress tracking, and actively prevented scope creep by making the full workload visible at all times.
+### 3.6 Project Management via Trello
+A centralized Kanban-style Trello board was utilized to track the Agile sprints and manage the project's **CRUD (Create, Read, Update, Delete)** operations for features and user stories. Features were broken down into manageable user stories and micro-tasks (e.g., "Build drag-and-drop AJAX endpoint" instead of a vague "Build Student UI"). These tasks were tracked across structured columns: *Backlog*, *To-Do*, *In Progress*, and *Done*. This explicit visualization maintained architectural momentum, ensured transparent progress tracking, and actively prevented feature creep. Administrators also utilize **CSV (Comma-Separated Values)** format for data export and audit trails, ensuring high interoperability with external spreadsheet software.
 
 🖼️ Figure 3.4 — Kanban Sprint Tracking
 [Insert Screenshot Here - Trello board]
