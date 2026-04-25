@@ -36,9 +36,10 @@ ProjectMatch isn't just a utility; it's a statement. Designed with the **Aston U
 
 *   👩‍🎓 **Smart Student Portal:** Intuitive **Drag-and-Drop** preference ranking (powered by SortableJS) and academic profile management.
 *   ⚖️ **The Fairness Engine:** A hybrid scoring algorithm that calculates the optimal cohort-wide allocation based on **Preferences** x **Academic Merit** x **Quotas**.
+*   🎚️ **Dynamic Weighting:** Administrators can tune the allocation ratio at runtime using a live slider to prioritize either technical suitability or student happiness.
 *   📊 **Supervisor Dashboard:** Real-time suitability checks comparing student skillsets against project prerequisites via dynamic match indicators.
 *   🔔 **Real-Time Notifications:** A global notification engine ensuring no stakeholder misses a critical deadline.
-*   🛡️ **RBAC Security:** Role-Based Access Control enforced via custom Python decorators, securing all sensitive administrative paths.
+*   🛡️ **RBAC & Auditability:** Role-Based Access Control and a comprehensive **System Audit Trail** for total administrative transparency.
 
 ---
 
