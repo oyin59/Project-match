@@ -36,15 +36,15 @@ def calculate_prerequisite_match(student_skills: str, project_prerequisites: str
     return matched_count, len(prereqs)
 
 
-def run_allocation_algorithm():
+def run_allocation_algorithm(weight_pref=50, weight_qual=50):
     """
     Executes the automated allocation process based on user-defined logic:
     1. Filter eligible students (Profile & Prefs submitted, Unallocated).
-    2. Sort by `preferences_submitted_at` (Ascending) -> `last_name` (Ascending).
-    3. For each student, calculate scores for their preferred projects:
-       - Profile Score: (Matches / 6) * 50
-       - Preference Score: Rank 1=50, Rank 2=30, Rank 3=10
-       - Total Score = Profile + Preference
+    2. Sort by student ID to maintain consistency.
+    3. For each student, calculate scores for their preferred projects using Dynamic Weighting:
+       - Qualification Score (Dominant): (Matches / TotalPrereqs) * weight_qual
+       - Preference Bonus (Nudge): Scaled bonus based on rank and weight_pref
+       - Total Score = QualScore + (PrefBonus * weight_pref / 100)
     4. Allocate to the highest-scoring project that has space.
     5. Update student status.
     """
@@ -87,42 +87,38 @@ def run_allocation_algorithm():
             if state['filled'] >= state['quota']:
                 continue
                 
-            # Step 3: Compute Scores
+            # Step 3: Compute Scores (Option 3 - Qualification Dominant)
             
-            # A. Profile Matching Score (0-50)
-            # We use the helper function we already have
+            # A. Qualification Score (0 to weight_qual)
             skills = ""
             try:
                 skills = student.profile.skills
             except:
                 pass
-            # B. Profile Matching Score (0-50)
+            
             matches, total_prereqs = calculate_prerequisite_match(skills, state['prereqs'])
             
-            # Normalize profile score: 100% match = 50 points, regardless of how many criteria.
             if total_prereqs > 0:
-                profile_score = (matches / total_prereqs) * 50
+                qual_score = (matches / total_prereqs) * float(weight_qual)
             else:
-                # If project has no prerequisites, award 0 so preference rank decides.
-                profile_score = 0
+                # If project has no prerequisites, it's accessible to all with base score
+                qual_score = float(weight_qual) * 0.5 
             
-            # B. Preference Score (0-50)
-            # Rank 1 = 50, Rank 2 = 30, Rank 3 = 10 (Arbitrary descending scale to fit 50 range)
-            pref_score = 0
-            if pref.rank == 1: pref_score = 50
-            elif pref.rank == 2: pref_score = 30
-            elif pref.rank == 3: pref_score = 10
+            # B. Preference Bonus (Nudge)
+            # We use a base bonus (10, 5, 2) and scale it by the weight_pref
+            # This ensures preference "nudges" the outcome but rarely overpowers a large skill gap.
+            rank_bonus_base = 0
+            if pref.rank == 1: rank_bonus_base = 10
+            elif pref.rank == 2: rank_bonus_base = 5
+            elif pref.rank == 3: rank_bonus_base = 2
             
-            total_score = profile_score + pref_score
+            pref_bonus = rank_bonus_base * (float(weight_pref) / 100.0)
             
-            # Logic: Identify "Best Fit" project for this student among their choices
-            # Since we iterate primarily to find *any* available slot, strict "best fit" might limit us 
-            # if we just take the first valid one. 
-            # However, usually students want their Rank 1. 
-            # If Rank 1 is available, Total Score will likely be highest (50+X).
-            # If Rank 1 is full, we look at Rank 2.
-            # So effectively, this loop finds the best *available* project.
+            total_score = qual_score + pref_bonus
             
+            # Log the scoring for transparency (can be seen in server logs)
+            print(f"DEBUG: Student {student.email} -> Project {p_id}: Qual={qual_score:.2f}, PrefBonus={pref_bonus:.2f}, Total={total_score:.2f}")
+
             if total_score > highest_score:
                 highest_score = total_score
                 best_project_id = p_id

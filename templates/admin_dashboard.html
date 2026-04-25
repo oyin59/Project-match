@@ -102,9 +102,9 @@
       new Chart(ctxProject, {
         type: 'doughnut',
         data: {
-          labels: ['Filled', 'Available Spaces'],
+          labels: ['Seats Filled', 'Available Slots'],
           datasets: [{
-            data: [parseInt("{{ total_filled_projects|default:0 }}"), parseInt("{{ total_available_projects|default:0 }}")],
+            data: [parseInt("{{ total_seats_filled|default:0 }}"), parseInt("{{ total_seats_available|default:0 }}")],
             backgroundColor: [pmGreen, pmGray],
             borderWidth: 0
           }]

@@ -684,12 +684,11 @@ def admin_dashboard(request):
     total_preferences_submitted = Student.objects.filter(preferences_submitted=True).count()
     total_projects_added = Project.objects.count()
     
-    # Calculate filled/available projects
-    # A project is filled if allocated_students count >= quota
-    from django.db.models import Count, F, Q
-    projects_annotated = Project.objects.annotate(num_allocated=Count('allocated_students'))
-    total_filled_projects = projects_annotated.filter(num_allocated__gte=F('quota')).count()
-    total_available_projects = projects_annotated.filter(num_allocated__lt=F('quota')).count()
+    # Calculate Seat Capacity (Filled vs Available Seats)
+    from django.db.models import Sum
+    total_seats_capacity = Project.objects.aggregate(total_seats=Sum('quota'))['total_seats'] or 0
+    total_seats_filled = total_allocations
+    total_seats_available = max(0, total_seats_capacity - total_seats_filled)
 
     # System Logs for Audit Trail
     system_logs = AuditLog.objects.all()[:15]
@@ -704,8 +703,8 @@ def admin_dashboard(request):
         "total_allocations_percentage": round(total_allocations_percentage),
         "total_preferences_submitted": total_preferences_submitted,
         "total_projects_added": total_projects_added,
-        "total_filled_projects": total_filled_projects,
-        "total_available_projects": total_available_projects,
+        "total_seats_filled": total_seats_filled,
+        "total_seats_available": total_seats_available,
         "system_logs": system_logs
     })
 
@@ -893,7 +892,7 @@ def admin_allocations(request):
         
         if "run_algo" in request.POST:
              from .utils import run_allocation_algorithm
-             count = run_allocation_algorithm()
+             count = run_allocation_algorithm(weight_pref=weight_preference, weight_qual=weight_academic)
              
              if count > 0:
                  messages.success(request, f"Allocation complete! {count} students were newly allocated.")
