@@ -1,4 +1,4 @@
-{% load static %}
+  {% load static %}
 <!doctype html>
 <html lang="en">
 
@@ -99,6 +99,10 @@
     <!-- Main page content -->
     {% block content %}{% endblock %}
   </main>
+
+  <!-- Modals block for Bootstrap modals to prevent z-index issues -->
+  {% block modals %}{% endblock %}
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>

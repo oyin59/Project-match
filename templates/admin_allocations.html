@@ -42,10 +42,6 @@
   <div class="card pm mb-4 p-4">
     <h5 class="mb-3 pm-title">Allocation settings</h5>
 
-    <!-- Allocation Settings -->
-    <div class="card pm mb-4 p-4">
-      <h5 class="mb-3 pm-title">Allocation settings</h5>
-
       <form method="POST" action="{% url 'admin_allocations' %}">
         {% csrf_token %}
 
@@ -188,32 +184,37 @@
       </button>
     </div>
 
-    <!-- Notify Students Modal -->
-    <div class="modal fade" id="notifyStudentsModal" tabindex="-1" aria-labelledby="notifyStudentsLabel"
-      aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content card pm">
-          <form method="POST" action="{% url 'admin_notify_students' %}">
-            {% csrf_token %}
-            <div class="modal-header border-0">
-              <h5 class="modal-title" id="notifyStudentsLabel">Notify students</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+
+{% endblock %}
+
+{% block modals %}
+  <!-- Notify Students Modal -->
+  <div class="modal fade" id="notifyStudentsModal" tabindex="-1" aria-labelledby="notifyStudentsLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content card pm">
+        <form method="POST" action="{% url 'admin_notify_students' %}">
+          {% csrf_token %}
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="notifyStudentsLabel">Notify students</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+
+            <p class="small text-secondary">
+              This will instantly blast a system notification to all students based on their current status.
+            </p>
+
+            <div class="mb-3">
+              <label class="form-label">Email subject</label>
+              <input type="text" class="form-control" value="Final Year Project Allocation Results" disabled>
             </div>
 
-            <div class="modal-body">
-
-              <p class="small text-secondary">
-                This will instantly blast a system notification to all students based on their current status.
-              </p>
-
-              <div class="mb-3">
-                <label class="form-label">Email subject</label>
-                <input type="text" class="form-control" value="Final Year Project Allocation Results" disabled>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Preview messages</label>
-                <textarea class="form-control" rows="8" disabled>
+            <div class="mb-3">
+              <label class="form-label">Preview messages</label>
+              <textarea class="form-control" rows="8" disabled>
 Depending on their status, the student will receive ONE of the following precise messages in their Notification Dropdown:
 
 [Allocated Students]:
@@ -224,25 +225,23 @@ Depending on their status, the student will receive ONE of the following precise
 
 [Unallocated Students - Profile/Prefs Missing]:
 "Kindly fill and or submit your profile and preference"
-              </textarea>
-              </div>
-
-              <div class="alert alert-warning small mb-0">
-                <strong>Read carefully:</strong> Clicking the button below will instantly dispatch these real-time
-                notifications to every single student's Navbar bell icon based on their status matrix.
-              </div>
+            </textarea>
             </div>
 
-            <div class="modal-footer border-0">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-gradient">
-                Send notifications
-              </button>
+            <div class="alert alert-warning small mb-0">
+              <strong>Read carefully:</strong> Clicking the button below will instantly dispatch these real-time
+              notifications to every single student's Navbar bell icon based on their status matrix.
             </div>
-          </form>
-        </div>
+          </div>
+
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-gradient">
+              Send notifications
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-
   </div>
-  {% endblock %}
+{% endblock %}

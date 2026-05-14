@@ -168,7 +168,7 @@ def student_add_preference(request, project_id):
     
     student = get_object_or_404(Student, id=request.session["user_id"])
     
-    # LOCK: Cannot add if submitted
+    # FEATURE: Locking System (Prevents modification of preferences after final submission)
     if student.preferences_submitted:
         messages.error(request, "Preferences are locked. You cannot add projects after creating a submission.")
         return redirect("student_projects")

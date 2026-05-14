@@ -1,3 +1,4 @@
+# FEATURE: Prerequisite Matching Algorithm (Compares student skills against project requirements)
 def calculate_prerequisite_match(student_skills: str, project_prerequisites: str) -> tuple[int, int]:
     """
     Compare student skills against project prerequisites.
@@ -34,8 +35,7 @@ def calculate_prerequisite_match(student_skills: str, project_prerequisites: str
     matched_count = sum(1 for p in prereqs if p in skills)
     
     return matched_count, len(prereqs)
-
-
+# FEATURE: Fairness Engine / Hybrid Scoring Algorithm (Calculates total scores and assigns projects)
 def run_allocation_algorithm(weight_pref=50, weight_qual=50):
     """
     Executes the automated allocation process based on user-defined logic:
